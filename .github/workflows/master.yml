@@ -1,4 +1,4 @@
-name: Master CI v1
+name: Master CI
 
 on:
   push:
