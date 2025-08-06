@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.trackerforce</groupId>
+    <artifactId>dot-path-ql</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <name>dot-path-ql</name>
+    <description>dotPathQL allows object attribute filtering</description>
+    <url>https://github.com/trackerforce/dot-path-ql</url>
+
+    <licenses>
+        <license>
+            <name>MIT License</name>
+            <url>https://raw.githubusercontent.com/trackerforce/dot-path-ql/master/LICENSE</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Roger Floriano (petruki)</name>
+            <roles>
+                <role>Founder</role>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>trackerforce</name>
+        <url>https://github.com/trackerforce</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:git://github.com:trackerforce/dot-path-ql.git</connection>
+        <developerConnection>scm:git:ssh://github.com:trackerforce/dot-path-ql.git</developerConnection>
+        <url>https://github.com/trackerforce/dot-path-ql</url>
+    </scm>
+
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- test -->
+        <junit-jupiter.version>5.13.4</junit-jupiter.version>
+        <lombok.version>1.18.30</lombok.version>
+
+        <!-- Plugins -->
+        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
+        <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+        <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <profiles>
+        <profile>
+            <id>sign</id>
+            <build>
+                <plugins>
+                    <!-- Generate and sign all artifacts -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven-source-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven-javadoc-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>${maven-gpg-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <finalName>dot-path-ql</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <!-- Set up Maven to run with JUnit5 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+            </plugin>
+
+            <!-- Publish to Maven Central -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>${central-publishing-maven-plugin.version}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
