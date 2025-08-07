@@ -1,21 +1,30 @@
 package io.github.trackerforce;
 
-import io.github.trackerforce.fixture.record.UserDetail;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class DotPathQLRecordTest {
+class TypeClassRecordTest {
 
 	DotPathQL dotPathQL = new DotPathQL();
 
-	@Test
-	void shouldReturnFilteredObjectAttributes() {
+	static Stream<Arguments> userDetailProvider() {
+		return Stream.of(
+				Arguments.of("Record type", io.github.trackerforce.fixture.record.UserDetail.of()),
+				Arguments.of("Class type", io.github.trackerforce.fixture.clazz.UserDetail.of())
+		);
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectAttributes(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var filterPaths = List.of(
 				"username",
 				"address.street",
@@ -27,7 +36,7 @@ class DotPathQLRecordTest {
 
 		// Then
 		assertEquals(3, result.size());
-		assertEquals("john_doe", result.get( "username"));
+		assertEquals("john_doe", result.get("username"));
 
 		// Verify nested address structure
 		var address = dotPathQL.mapFrom(result, "address");
@@ -56,10 +65,10 @@ class DotPathQLRecordTest {
 		assertEquals("Headphones", secondOrderProducts.get(0).get("name"));
 	}
 
-	@Test
-	void shouldReturnFilteredObjectWithArray() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectWithArray(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var filterPaths = List.of(
 				"occupations.title"
 		);
@@ -77,10 +86,10 @@ class DotPathQLRecordTest {
 		assertEquals("Project Manager", occupations.get(1).get("title"));
 	}
 
-	@Test
-	void shouldReturnFilteredObjectWithMap() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectWithMap(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var filterPaths = List.of(
 				"additionalInfo.preferredLanguage",
 				"additionalInfo.subscriptionStatus"
@@ -99,10 +108,10 @@ class DotPathQLRecordTest {
 		assertEquals("Active", additionalInfo.get("subscriptionStatus"));
 	}
 
-	@Test
-	void shouldReturnFilteredObjectWithComplexMap() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectWithComplexMap(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var filterPaths = List.of(
 				"locations.home.street",
 				"locations.work.city"
@@ -128,10 +137,10 @@ class DotPathQLRecordTest {
 		assertEquals("Springfield", workLocation.get("city"));
 	}
 
-	@Test
-	void shouldAddDefaultFilterPaths() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldAddDefaultFilterPaths(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var defaultPaths = List.of("username");
 		var filterPaths = List.of("address.city");
 
@@ -146,10 +155,10 @@ class DotPathQLRecordTest {
 		assertEquals("Springfield", dotPathQL.mapFrom(result, "address").get("city"));
 	}
 
-	@Test
-	void shouldReturnFilteredObjectUsingGroupedPaths() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectUsingGroupedPaths(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
 		var filterPaths = List.of(
 				"locations[home.street,work.city]"
 		);
@@ -174,10 +183,39 @@ class DotPathQLRecordTest {
 		assertEquals("Springfield", workLocation.get("city"));
 	}
 
-	@Test
-	void shouldReturnEmptyResultInvalidGroupedPaths() {
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredObjectUsingNestedGroupedPaths(String implementation, Object userDetail) {
 		// Given
-		var userDetail = UserDetail.of();
+		var filterPaths = List.of(
+				"locations[home[street,city],work[city]]"
+		);
+
+		// When
+		var result = dotPathQL.filter(userDetail, filterPaths);
+
+		// Then
+		assertEquals(1, result.size());
+
+		var locations = dotPathQL.mapFrom(result, "locations");
+		assertEquals(2, locations.size());
+
+		// Verify home address structure
+		var homeLocation = dotPathQL.mapFrom(locations, "home");
+		assertNotNull(homeLocation);
+		assertEquals("456 Elm St", homeLocation.get("street"));
+		assertEquals("Springfield", homeLocation.get("city"));
+
+		// Verify work address structure
+		var workLocation = dotPathQL.mapFrom(locations, "work");
+		assertNotNull(workLocation);
+		assertEquals("Springfield", workLocation.get("city"));
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnEmptyResultInvalidGroupedPaths(String implementation, Object userDetail) {
+		// Given
 		var filterPaths = List.of(
 				"locations]home[" // Invalid grouped path
 		);

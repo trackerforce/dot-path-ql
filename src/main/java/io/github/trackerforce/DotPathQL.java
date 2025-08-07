@@ -37,9 +37,9 @@ public class DotPathQL {
 	public <T> Map<String, Object> filter(T source, List<String> filterPaths) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		List<String> expandedPaths = expandGroupedPaths(filterPaths);
-		defaultFilterPaths.addAll(expandedPaths);
+		expandedPaths.addAll(0, defaultFilterPaths);
 
-		for (String path : defaultFilterPaths) {
+		for (String path : expandedPaths) {
 			addPathToResult(result, source, path);
 		}
 
@@ -55,7 +55,7 @@ public class DotPathQL {
 	 * @throws ClassCastException if the property is not a map
 	 */
 	public Map<String, Object> mapFrom(Map<String, Object> source, String property) {
-		if (source == null || property == null || property.isEmpty() || !source.containsKey(property)) {
+		if (isInvalid(source, property)) {
 			return Collections.emptyMap();
 		}
 
@@ -71,11 +71,27 @@ public class DotPathQL {
 	 * @throws ClassCastException if the property is not a list of maps
 	 */
 	public List<Map<String, Object>> listFrom(Map<String, Object> source, String property) {
-		if (source == null || property == null || property.isEmpty() || !source.containsKey(property)) {
+		if (isInvalid(source, property)) {
 			return Collections.emptyList();
 		}
 
 		return (List<Map<String, Object>>) source.get(property);
+	}
+
+	/**
+	 * Extracts a list of objects from the source map based on the specified property.
+	 *
+	 * @param source   the source map
+	 * @param property the property to extract
+	 * @return the extracted list of objects or an empty list if not found
+	 * @throws ClassCastException if the property is not a list of objects
+	 */
+	public Object[] arrayFrom(Map<String, Object> source, String property) {
+		if (isInvalid(source, property)) {
+			return new Object[0];
+		}
+
+		return (Object[]) source.get(property);
 	}
 
 	/**
@@ -109,6 +125,7 @@ public class DotPathQL {
 
 	/**
 	 * Expands a single grouped path into individual paths.
+	 * Supports nested brackets like "locations[home[street],work[city]]"
 	 *
 	 * @param groupedPath the grouped path to expand
 	 * @return a list of individual paths
@@ -117,10 +134,10 @@ public class DotPathQL {
 		List<String> expandedPaths = new ArrayList<>();
 
 		int startBracket = groupedPath.indexOf('[');
-		int endBracket = groupedPath.indexOf(']');
 
-		if (startBracket == -1 || endBracket == -1 || startBracket >= endBracket) {
-			// Invalid format, return as-is
+		// Find the matching closing bracket by counting bracket depth
+		int endBracket = findMatchingClosingBracket(groupedPath, startBracket);
+		if (endBracket == -1) {
 			expandedPaths.add(groupedPath);
 			return expandedPaths;
 		}
@@ -128,16 +145,162 @@ public class DotPathQL {
 		String prefix = groupedPath.substring(0, startBracket);
 		String groupedContent = groupedPath.substring(startBracket + 1, endBracket);
 
-		// Split by comma and create individual paths
-		String[] subPaths = groupedContent.split(",");
+		// Parse the grouped content, handling nested brackets
+		List<String> subPaths = parseGroupedContent(groupedContent);
+
 		for (String subPath : subPaths) {
-			String trimmedSubPath = subPath.trim();
-			if (!trimmedSubPath.isEmpty()) {
-				expandedPaths.add(prefix + "." + trimmedSubPath);
+			if (!subPath.trim().isEmpty()) {
+				expandedPaths.add(prefix + "." + subPath.trim());
 			}
 		}
 
 		return expandedPaths;
+	}
+
+	/**
+	 * Finds the matching closing bracket for the given opening bracket position.
+	 *
+	 * @param text the text to search in
+	 * @param startPos the position of the opening bracket
+	 * @return the position of the matching closing bracket, or -1 if not found
+	 */
+	private int findMatchingClosingBracket(String text, int startPos) {
+		int depth = 1;
+		for (int i = startPos + 1; i < text.length(); i++) {
+			char ch = text.charAt(i);
+			if (ch == '[') {
+				depth++;
+			} else if (ch == ']') {
+				depth--;
+				if (depth == 0) {
+					return i;
+				}
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Parses grouped content that may contain nested brackets.
+	 * For example: "home[street,city],work[city]" -> ["home[street,city]", "work[city]"]
+	 *
+	 * @param content the grouped content to parse
+	 * @return a list of sub-paths
+	 */
+	private List<String> parseGroupedContent(String content) {
+		List<String> subPaths = new ArrayList<>();
+		int depth = 0;
+		int start = getStart(content, depth, subPaths);
+
+		// Add the last sub-path
+		String lastSubPath = content.substring(start).trim();
+		if (!lastSubPath.isEmpty()) {
+			// Recursively expand if this subPath contains brackets
+			if (lastSubPath.contains("[") && lastSubPath.contains("]")) {
+				subPaths.addAll(expandNestedSubPath(lastSubPath));
+			} else {
+				subPaths.add(lastSubPath);
+			}
+		}
+
+		return subPaths;
+	}
+
+	/**
+	 * Gets the start index for parsing comma-separated sub-paths in the content.
+	 *
+	 * @param content   the content to parse
+	 * @param depth     the current bracket depth
+	 * @param subPaths  the list to store parsed sub-paths
+	 * @return the start index for the next sub-path
+	 */
+	private int getStart(String content, int depth, List<String> subPaths) {
+		int start = 0;
+
+		for (int i = 0; i < content.length(); i++) {
+			char ch = content.charAt(i);
+
+			if (ch == '[') {
+				depth++;
+			} else if (ch == ']') {
+				depth--;
+			} else if (ch == ',' && depth == 0) {
+				// Found a comma at the top level - this is a separator
+				String subPath = content.substring(start, i).trim();
+				if (!subPath.isEmpty()) {
+					if (subPath.contains("[") && subPath.contains("]")) {
+						subPaths.addAll(expandNestedSubPath(subPath));
+					} else {
+						subPaths.add(subPath);
+					}
+				}
+				start = i + 1;
+			}
+		}
+		return start;
+	}
+
+	/**
+	 * Expands a nested sub-path like "home[street,city]" into "home.street" and "home.city"
+	 *
+	 * @param subPath the sub-path to expand
+	 * @return a list of expanded paths
+	 */
+	private List<String> expandNestedSubPath(String subPath) {
+		List<String> expandedPaths = new ArrayList<>();
+
+		int startBracket = subPath.indexOf('[');
+		int endBracket = findMatchingClosingBracket(subPath, startBracket);
+
+		if (startBracket != -1 && endBracket != -1) {
+			String prefix = subPath.substring(0, startBracket);
+			String nestedContent = subPath.substring(startBracket + 1, endBracket);
+
+			// Parse nested content that may contain its own comma-separated values
+			List<String> nestedPaths = parseCommaSeparatedPaths(nestedContent);
+			for (String nestedPath : nestedPaths) {
+				String trimmed = nestedPath.trim();
+				if (!trimmed.isEmpty()) {
+					expandedPaths.add(prefix + "." + trimmed);
+				}
+			}
+		}
+
+		return expandedPaths;
+	}
+
+	/**
+	 * Parses comma-separated paths, respecting bracket nesting.
+	 * For example: "street,city" -> ["street", "city"]
+	 * For example: "prop1,nested[sub1,sub2]" -> ["prop1", "nested[sub1,sub2]"]
+	 *
+	 * @param content the content to parse
+	 * @return a list of paths
+	 */
+	private List<String> parseCommaSeparatedPaths(String content) {
+		List<String> paths = new ArrayList<>();
+		int start = 0;
+
+		for (int i = 0; i < content.length(); i++) {
+			char ch = content.charAt(i);
+
+			if (ch == ',') {
+				// Found a comma at the top level - this is a separator
+				String path = content.substring(start, i).trim();
+				if (!path.isEmpty()) {
+					paths.add(path);
+				}
+				start = i + 1;
+			}
+		}
+
+		// Add the last path
+		String lastPath = content.substring(start).trim();
+		if (!lastPath.isEmpty()) {
+			paths.add(lastPath);
+		}
+
+		return paths;
 	}
 
 	private <T> void addPathToResult(Map<String, Object> result, T source, String path) {
@@ -161,20 +324,12 @@ public class DotPathQL {
 											String remainingPath) {
 		// Nested property using Collection
 		if (value instanceof Collection<?> collection) {
-			List<Map<String, Object>> nestedResults =
-					getNestedStructure(result, collection, currentProperty, remainingPath);
-
-			// Remove any empty maps
-			nestedResults.removeIf(Map::isEmpty);
+			getNestedStructure(result, collection, currentProperty, remainingPath).removeIf(Map::isEmpty);
 
 			// Nested property using Array
 		} else if (value.getClass().isArray()) {
 			Object[] array = (Object[]) value;
-			List<Map<String, Object>> nestedResults =
-					getNestedStructure(result, Arrays.asList(array), currentProperty, remainingPath);
-
-			// Remove any empty maps
-			nestedResults.removeIf(Map::isEmpty);
+			getNestedStructure(result, Arrays.asList(array), currentProperty, remainingPath).removeIf(Map::isEmpty);
 
 			// Nested property using Map
 		} else if (value instanceof Map<?, ?> map) {
@@ -193,10 +348,10 @@ public class DotPathQL {
 					// This is the final property - set the value directly
 					nestedResult.put(targetKey, entryValue);
 				} else {
-					// Continue processing the nested path on the complex object
-					// Create a nested map for this key
-					Map<String, Object> keyNestedResult = new LinkedHashMap<>();
-					nestedResult.put(targetKey, keyNestedResult);
+					// Get or create a nested map for this key (don't overwrite existing)
+					Map<String, Object> keyNestedResult = (Map<String, Object>)
+							nestedResult.computeIfAbsent(targetKey, k -> new LinkedHashMap<>());
+
 					addPathToResult(keyNestedResult, entryValue, nextRemainingPath);
 				}
 			}
@@ -205,7 +360,6 @@ public class DotPathQL {
 		} else {
 			Map<String, Object> nestedResult = (Map<String, Object>)
 					result.computeIfAbsent(currentProperty, k -> new LinkedHashMap<>());
-			result.put(currentProperty, nestedResult);
 			addPathToResult(nestedResult, value, remainingPath);
 		}
 	}
@@ -247,7 +401,6 @@ public class DotPathQL {
 
 			// Fall back to direct field access
 			return tryDirectFieldAccess(source, propertyName, clazz);
-
 		} catch (Exception e) {
 			return null;
 		}
@@ -278,5 +431,9 @@ public class DotPathQL {
 		} catch (Exception e) {
 			return null;
 		}
+	}
+
+	private boolean isInvalid(Map<String, Object> source, String property) {
+		return source == null || property == null || property.isEmpty() || !source.containsKey(property);
 	}
 }
