@@ -6,7 +6,7 @@
 
     <groupId>io.github.trackerforce</groupId>
     <artifactId>dot-path-ql</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <name>dot-path-ql</name>
     <description>dotPathQL allows object attribute filtering</description>
@@ -50,7 +50,7 @@
         <junit-jupiter.version>5.13.4</junit-jupiter.version>
         <lombok.version>1.18.30</lombok.version>
 
-        <!-- Plugins -->
+        <!-- plugins -->
         <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
@@ -63,6 +63,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
             <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>

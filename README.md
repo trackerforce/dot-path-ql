@@ -65,46 +65,11 @@ Given an input object with complex nested structure, the filter will return:
 
 ## Supported Data Structures
 
-### 1. Simple Properties
-```java
-List<String> paths = List.of("username", "email");
-```
-
-### 2. Nested Objects
-```java
-List<String> paths = List.of("address.street", "address.zipCode");
-```
-
-### 3. Collections and Arrays
-```java
-// Extract from Lists
-List<String> paths = List.of("orders.products.name");
-
-// Extract from Arrays
-List<String> paths = List.of("occupations.title");
-```
-
-### 4. Map Structures
-
-#### Simple Maps
-```java
-// Map<String, String>
-List<String> paths = List.of(
-    "additionalInfo.preferredLanguage",
-    "additionalInfo.subscriptionStatus"
-);
-```
-
-#### Complex Maps
-```java
-// Map<String, Address>
-List<String> paths = List.of(
-    "locations.home.street",
-    "locations.work.city"
-);
-```
-
-### 5. Grouped Paths
+- Simple Properties
+- Nested Objects
+- Collections and Arrays
+- Map Structures
+- Grouped Paths
 
 For scenarios where you need multiple properties from the same parent object, you can use the grouped paths syntax to write more concise filter expressions:
 
@@ -114,35 +79,9 @@ For scenarios where you need multiple properties from the same parent object, yo
 ```
 
 #### Example
-Instead of writing:
-```java
-List<String> paths = List.of(
-    "locations.home.street",
-    "locations.work.city"
-);
-```
-
-You can also write:
 ```java
 List<String> paths = List.of(
     "locations[home.street,work.city]"
-);
-```
-
-#### More Complex Examples
-```java
-// Multiple grouped paths
-List<String> paths = List.of(
-    "locations[home.street,home.zipCode,work.city]",
-    "contact[email,phone.mobile]",
-    "orders[products.name,total,date]"
-);
-
-// Mixed with regular paths
-List<String> paths = List.of(
-    "username",                           // Regular path
-    "locations[home.street,work.city]",   // Grouped path
-    "address.state"                       // Regular path
 );
 ```
 
@@ -150,79 +89,6 @@ List<String> paths = List.of(
 The grouped paths are automatically expanded internally:
 - `"locations[home.street,work.city]"` becomes `"locations.home.street"` and `"locations.work.city"`
 - `"contact[email,phone.mobile]"` becomes `"contact.email"` and `"contact.phone.mobile"`
-
-This feature maintains full backward compatibility while providing a more readable way to specify multiple related paths.
-
-## Advanced Examples
-
-### Complex Nested Filtering
-
-```java
-UserDetail user = UserDetail.of(); // Creates sample data
-
-List<String> filterPaths = List.of(
-    "username",                          // Simple property
-    "address.street",                    // Nested object
-    "orders.products.name",              // Collection of objects
-    "orders.products.description",       // Multiple properties from same collection
-    "additionalInfo.preferredLanguage",  // Simple Map value
-    "locations.home.street",             // Complex Map value
-    "occupations.title"                  // Array of objects
-);
-
-Map<String, Object> filtered = filterUtil.filter(user, filterPaths);
-```
-
-### Result Structure
-
-The above filtering would produce:
-
-```json
-{
-  "username": "john_doe",
-  "address": {
-    "street": "123 Main St"
-  },
-  "orders": [
-    {
-      "products": [
-        {
-          "name": "Laptop",
-          "description": "High-end gaming laptop"
-        },
-        {
-          "name": "Smartphone", 
-          "description": "Latest model smartphone"
-        }
-      ]
-    },
-    {
-      "products": [
-        {
-          "name": "Headphones",
-          "description": "Noise-cancelling headphones"
-        }
-      ]
-    }
-  ],
-  "additionalInfo": {
-    "preferredLanguage": "English"
-  },
-  "locations": {
-    "home": {
-      "street": "456 Elm St"
-    }
-  },
-  "occupations": [
-    {
-      "title": "Software Engineer"
-    },
-    {
-      "title": "Project Manager"
-    }
-  ]
-}
-```
 
 ## How It Works
 

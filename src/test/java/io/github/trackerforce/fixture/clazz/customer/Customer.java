@@ -1,4 +1,4 @@
-package io.github.trackerforce.fixture.clazz;
+package io.github.trackerforce.fixture.clazz.customer;
 
 import lombok.Data;
 
