@@ -4,7 +4,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Common functionality for handling paths in the DotPathQL library.
@@ -14,28 +16,52 @@ import java.util.List;
 abstract class PathCommon {
 
 	/**
-	 * Default filter paths that can be used across different implementations.
-	 * This allows for easy configuration of common paths to filter.
+	 * Default paths that can be used across different implementations.
 	 */
-	protected final List<String> defaultFilterPaths;
+	protected final List<String> defaultPaths;
 
 	/**
-	 * Constructor to initialize the PathCommon with an empty list of default filter paths.
-	 * This allows subclasses to add their own default paths as needed.
+	 * Executes the path processing logic for the given source object.
+	 *
+	 * @param <T>         the type of the source object
+	 * @param source      the source object to process
+	 * @param filterPaths the list of paths to filter or exclude
+	 * @return a map containing the processed properties
 	 */
-	protected PathCommon() {
-		this.defaultFilterPaths = new ArrayList<>();
+	abstract <T> Map<String, Object> execute(T source, List<String> filterPaths);
+
+	/**
+	 * Runs the path processing logic for the given source object with the specified paths.
+	 *
+	 * @param <T>          the type of the source object
+	 * @param source       the source object to process
+	 * @param excludePaths the list of paths to exclude
+	 * @return a map containing the processed properties
+	 */
+	<T> Map<String, Object> run(T source, List<String> excludePaths) {
+		if (source == null) {
+			return Collections.emptyMap();
+		}
+
+		return execute(source, expandGroupedPaths(excludePaths));
 	}
 
 	/**
-	 * Adds default filter paths to the list of paths that can be used
-	 * when filtering objects. This allows for easy configuration of common
-	 * paths that should always be available for filtering.
-	 *
-	 * @param paths the list of paths to add as default filter paths
+	 * Constructor to initialize the PathCommon with an empty list of default paths.
+	 * This allows subclasses to add their own default paths as needed.
 	 */
-	public void addDefaultFilterPaths(List<String> paths) {
-		defaultFilterPaths.addAll(paths);
+	protected PathCommon() {
+		this.defaultPaths = new ArrayList<>();
+	}
+
+	/**
+	 * Adds default paths to the list of paths that can be used
+	 * when processing objects.
+	 *
+	 * @param paths the list of paths to add as default paths
+	 */
+	public void addDefaultPaths(List<String> paths) {
+		defaultPaths.addAll(paths);
 	}
 
 	/**

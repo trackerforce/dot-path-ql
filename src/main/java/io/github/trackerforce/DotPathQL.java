@@ -14,8 +14,8 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class DotPathQL {
 
-	private final PathFilter pathFilter;
-	private final PathExclude pathExclude;
+	private final PathCommon pathFilter;
+	private final PathCommon pathExclude;
 
 	/**
 	 * Constructs a DotPathQL instance with an empty list of default filter paths.
@@ -36,7 +36,7 @@ public class DotPathQL {
 	 * @return a map containing the filtered properties
 	 */
 	public <T> Map<String, Object> filter(T source, List<String> filterPaths) {
-		return pathFilter.filter(source, filterPaths);
+		return pathFilter.run(source, filterPaths);
 	}
 
 	/**
@@ -51,7 +51,7 @@ public class DotPathQL {
 	 * @return a map containing all properties except the excluded ones
 	 */
 	public <T> Map<String, Object> exclude(T source, List<String> excludePaths) {
-		return pathExclude.exclude(source, excludePaths);
+		return pathExclude.run(source, excludePaths);
 	}
 
 	/**
@@ -108,7 +108,16 @@ public class DotPathQL {
 	 * @param paths the list of default filter paths to add
 	 */
 	public void addDefaultFilterPaths(List<String> paths) {
-		pathFilter.addDefaultFilterPaths(paths);
+		pathFilter.addDefaultPaths(paths);
+	}
+
+	/**
+	 * Adds default exclude paths that will be included in every exclusion operation.
+	 *
+	 * @param paths the list of default exclude paths to add
+	 */
+	public void addDefaultExcludePaths(List<String> paths) {
+		pathExclude.addDefaultPaths(paths);
 	}
 
 	private boolean isInvalid(Map<String, Object> source, String property) {

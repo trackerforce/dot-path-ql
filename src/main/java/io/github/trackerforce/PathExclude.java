@@ -10,13 +10,11 @@ class PathExclude extends PathCommon {
 		INSTANCE
 	}
 
-	public <T> Map<String, Object> exclude(T source, List<String> excludePaths) {
-		if (source == null) {
-			return Collections.emptyMap();
-		}
-
-		ExclusionNode root = buildExclusionTree(expandGroupedPaths(excludePaths));
+	public <T> Map<String, Object> execute(T source, List<String> excludePaths) {
 		Map<String, Object> result = new LinkedHashMap<>();
+		excludePaths.addAll(0, defaultPaths);
+
+		ExclusionNode root = buildExclusionTree(excludePaths);
 		buildExcluding(result, source, "", root);
 		return result;
 	}

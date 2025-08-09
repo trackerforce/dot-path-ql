@@ -106,6 +106,21 @@ class ExcludeTypeClassRecordTest {
         assertFalse(work.containsKey("city"));
     }
 
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldAddDefaultExclusionPaths(String implementation, Object userDetail) {
+		// When
+		dotPathQL.addDefaultExcludePaths(List.of("username"));
+		var result = dotPathQL.exclude(userDetail, List.of("address.city"));
+
+		// Then
+		assertFalse(result.containsKey("username"));
+		var address = dotPathQL.mapFrom(result, "address");
+		assertNotNull(address);
+		assertFalse(address.containsKey("city"));
+		assertTrue(address.containsKey("street"));
+	}
+
 	@Test
 	void shouldReturnEmptyMapWhenSourceIsNull() {
 		// When

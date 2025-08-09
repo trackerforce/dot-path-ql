@@ -5,16 +5,11 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 class PathFilter extends PathCommon {
 
-	public <T> Map<String, Object> filter(T source, List<String> filterPaths) {
-		if (source == null) {
-			return Collections.emptyMap();
-		}
-
+	public <T> Map<String, Object> execute(T source, List<String> filterPaths) {
 		Map<String, Object> result = new LinkedHashMap<>();
-		List<String> expandedPaths = expandGroupedPaths(filterPaths);
-		expandedPaths.addAll(0, defaultFilterPaths);
+		filterPaths.addAll(0, defaultPaths);
 
-		for (String path : expandedPaths) {
+		for (String path : filterPaths) {
 			addPathToResult(result, source, path);
 		}
 
