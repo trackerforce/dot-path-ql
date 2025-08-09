@@ -1,12 +1,12 @@
 package io.github.trackerforce.fixture.clazz;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+
+import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -22,6 +22,7 @@ public class UserDetail {
 	Occupation[] occupations;
 	Map<String, String> additionalInfo;
 	Map<String, Address> locations;
+	int[] scoresArray;
 
 	public static UserDetail of() {
 		return new UserDetail(
@@ -29,38 +30,15 @@ public class UserDetail {
 				"jown@email.com",
 				"John Doe",
 				"+1234567890",
-				new Address(
-						"123 Main St",
-						"Springfield",
-						"IL",
-						"62701",
-						"USA"
-				),
+				Address.of123(),
 				List.of(
-						new Order(
-								List.of(
-										new Product("1", "Laptop", "High-end gaming laptop", 1500.00, "Electronics", 5),
-										new Product("2", "Smartphone", "Latest model smartphone", 800.00, "Electronics", 10)
-								),
-								new Date(),
-								"order123"
-						),
-						new Order(
-								List.of(
-										new Product("3", "Headphones", "Noise-cancelling headphones", 200.00, "Accessories", 15)
-								),
-								new Date(),
-								"order456"
-						)
+						Order.ofOrder123(),
+						Order.ofOrder456()
 				),
 				new String[] {"USER", "ADMIN"},
 				new Occupation[] {
-						new Occupation("Software Engineer", "Develops software applications", 90000.00, "Engineering", 5,
-								new Address("123 Tech St", "Tech City", "CA", "90001", "USA")
-						),
-						new Occupation("Project Manager", "Manages software projects", 95000.00, "Management", 7,
-								new Address("456 Project Ave", "Project City", "CA", "90002", "USA")
-						)
+						Occupation.ofSoftwareEngineer(),
+						Occupation.ofProjectManager()
 				},
 				Map.of(
 						"preferredLanguage", "English",
@@ -68,9 +46,10 @@ public class UserDetail {
 						"lastLogin", "2023-10-01T12:00:00Z"
 				),
 				Map.of(
-						"home", new Address("456 Elm St", "Springfield", "IL", "62701", "USA"),
-						"work", new Address("789 Oak St", "Springfield", "IL", "62701", "USA")
-				)
+						"home", Address.of456(),
+						"work", Address.of789()
+				),
+				new int[] {85, 90, 95}
 		);
 	}
 }

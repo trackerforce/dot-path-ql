@@ -109,6 +109,10 @@ class PathExclude extends PathCommon {
 		boolean isArray = value.getClass().isArray();
 
 		if (isArray) {
+			if (isPrimitiveArray(value)) {
+				return value;
+			}
+
 			array = (Object[]) value;
 			list = Arrays.asList((Object[]) value);
 		} else {
@@ -120,6 +124,10 @@ class PathExclude extends PathCommon {
 			return isArray ? array : list;
 		}
 
+		return addElementsToList(path, node, list);
+	}
+
+	private List<Object> addElementsToList(String path, ExclusionNode node, List<?> list) {
 		List<Object> items = new ArrayList<>();
 		for (Object element : list) {
 			if (isSimpleValue(element)) {
@@ -130,7 +138,6 @@ class PathExclude extends PathCommon {
 				items.add(elementMap);
 			}
 		}
-
 		return items;
 	}
 
@@ -138,6 +145,12 @@ class PathExclude extends PathCommon {
 		return value == null || value instanceof String || value instanceof Number || value instanceof Boolean ||
 				value instanceof Character || value instanceof Enum<?> || value instanceof java.util.Date ||
 				value.getClass().isPrimitive();
+	}
+
+	private boolean isPrimitiveArray(Object value) {
+		return value instanceof boolean[] || value instanceof byte[] || value instanceof char[] ||
+				value instanceof short[] || value instanceof int[] || value instanceof long[] ||
+				value instanceof float[] || value instanceof double[];
 	}
 
 	private List<String> getPropertyNames(Class<?> clazz) {
