@@ -18,7 +18,7 @@ The `DotPathQL` is the core component of this project that allows you to extract
 - 📋 **Collection Handling**: Process Lists, Arrays, and other Collections
 - 🗺️ **Map Support**: Handle both simple and complex Map structures
 - 📝 **Record & POJO Support**: Works with Java Records and traditional classes
-- 🔒 **Private Field Access**: Can access private fields when getters aren't available
+- 🔒 **Private Field Access**: Can access private fields when getters aren't available (filtering only)
 - 🚀 **Performance Optimized**: Efficient reflection-based property access
 
 ## Quick Start
@@ -38,10 +38,8 @@ The `DotPathQL` is the core component of this project that allows you to extract
 ### Filter Usage
 
 ```java
-DotPathQL filterUtil = new DotPathQL();
-
 // Filter specific properties from an object
-Map<String, Object> result = filterUtil.filter(userObject, List.of(
+Map<String, Object> result = new DotPathQL().filter(userObject, List.of(
     "username",
     "address.street",
     "address.city"
@@ -51,10 +49,8 @@ Map<String, Object> result = filterUtil.filter(userObject, List.of(
 ### Exclude Usage
 
 ```java
-DotPathQL filterUtil = new DotPathQL();
-
 // Exclude specific properties and return everything else
-Map<String, Object> result = filterUtil.exclude(userObject, List.of(
+Map<String, Object> result = new DotPathQL().exclude(userObject, List.of(
     "password",
     "ssn",
     "address.country"
@@ -63,7 +59,7 @@ Map<String, Object> result = filterUtil.exclude(userObject, List.of(
 
 ## Supported Data Structures
 
-- Simple Properties
+- Simple Properties (primitive and object types)
 - Nested Objects
 - Collections and Arrays
 - Map Structures
@@ -96,7 +92,7 @@ The utility uses a multi-layered approach to access object properties:
 
 1. **Record Components** (Most Efficient): For Java Records, uses the generated accessor methods
 2. **Getter Methods**: Tries standard getter methods (`getName()`, `getAddress()`)
-3. **Direct Field Access**: Falls back to direct field access for private fields
+3. **Direct Field Access**: Falls back to direct field access for private fields (except for the exclude API)
 
 ### Nested Structure Processing
 
@@ -176,6 +172,25 @@ List<String> reportFields = List.of(
     "orders.date",
     "orders.products.category"
 );
+```
+
+## Helper Utilities
+
+You can also easy access the map result using the `DotPathQL` utility methods:
+
+```java
+// Step 1
+var dotPathQL = new DotPathQL();
+var result = dotPathQL.filter(userObject, List.of(
+    "address",
+    "friendList",
+    "games"
+));
+
+// Step 2: Accessing the result
+var address = dotPathQL.mapFrom(result, "address");
+var friendList = dotPathQL.listFrom(result, "friendList");
+var games = dotPathQL.arrayFrom(result, "games");
 ```
 
 ## Technical Requirements

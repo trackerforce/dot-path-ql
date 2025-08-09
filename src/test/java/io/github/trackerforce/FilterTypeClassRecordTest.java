@@ -126,13 +126,9 @@ class FilterTypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldAddDefaultFilterPaths(String implementation, Object userDetail) {
-		// Given
-		var defaultPaths = List.of("username");
-		var filterPaths = List.of("address.city");
-
 		// When
-		dotPathQL.addDefaultFilterPaths(defaultPaths);
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		dotPathQL.addDefaultFilterPaths(List.of("username"));
+		var result = dotPathQL.filter(userDetail, List.of("address.city"));
 
 		// Then
 		assertEquals(2, result.size());
