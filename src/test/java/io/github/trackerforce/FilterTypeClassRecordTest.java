@@ -1,5 +1,6 @@
 package io.github.trackerforce;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -7,10 +8,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-class TypeClassRecordTest {
+class FilterTypeClassRecordTest {
 
 	DotPathQL dotPathQL = new DotPathQL();
 
@@ -24,15 +24,12 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectAttributes(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
+		// When
+		var result = dotPathQL.filter(userDetail, List.of(
 				"username",
 				"address.street",
 				"orders.products.name"
-		);
-
-		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		));
 
 		// Then
 		assertEquals(3, result.size());
@@ -68,13 +65,8 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectWithArray(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
-				"occupations.title"
-		);
-
 		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		var result = dotPathQL.filter(userDetail, List.of("occupations.title"));
 
 		// Then
 		assertEquals(1, result.size());
@@ -89,14 +81,11 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectWithMap(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
+		// When
+		var result = dotPathQL.filter(userDetail, List.of(
 				"additionalInfo.preferredLanguage",
 				"additionalInfo.subscriptionStatus"
-		);
-
-		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		));
 
 		// Then
 		assertEquals(1, result.size());
@@ -111,14 +100,11 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectWithComplexMap(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
+		// When
+		var result = dotPathQL.filter(userDetail, List.of(
 				"locations.home.street",
 				"locations.work.city"
-		);
-
-		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		));
 
 		// Then
 		assertEquals(1, result.size());
@@ -158,13 +144,8 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectUsingGroupedPaths(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
-				"locations[home.street,work.city]"
-		);
-
 		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		var result = dotPathQL.filter(userDetail, List.of("locations[home.street,work.city]"));
 
 		// Then
 		assertEquals(1, result.size());
@@ -186,13 +167,8 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnFilteredObjectUsingNestedGroupedPaths(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
-				"locations[home[street,city],work[city]]"
-		);
-
 		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		var result = dotPathQL.filter(userDetail, List.of("locations[home[street,city],work[city]]"));
 
 		// Then
 		assertEquals(1, result.size());
@@ -215,15 +191,20 @@ class TypeClassRecordTest {
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
 	void shouldReturnEmptyResultInvalidGroupedPaths(String implementation, Object userDetail) {
-		// Given
-		var filterPaths = List.of(
-				"locations]home[" // Invalid grouped path
-		);
-
 		// When
-		var result = dotPathQL.filter(userDetail, filterPaths);
+		var result = dotPathQL.filter(userDetail, List.of("locations]home[")); // Invalid grouped path
 
 		// Then
 		assertEquals(0, result.size());
+	}
+
+	@Test
+	void shouldReturnEmptyMapWhenSourceIsNull() {
+		// When
+		var result = dotPathQL.filter(null, List.of("orders.orderId"));
+
+		// Then
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
 	}
 }

@@ -14,4 +14,5 @@ public class Occupation {
 	double salary;
 	String department;
 	int yearsOfExperience;
+	Address address;
 }

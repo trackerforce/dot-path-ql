@@ -13,6 +13,7 @@ The `DotPathQL` is the core component of this project that allows you to extract
 ## Features
 
 - 🎯 **Selective Property Extraction**: Extract only the properties you need
+- 🚫 **Property Exclusion**: Exclude specific properties and return everything else
 - 🔍 **Deep Nested Support**: Navigate through multiple levels of object nesting
 - 📋 **Collection Handling**: Process Lists, Arrays, and other Collections
 - 🗺️ **Map Support**: Handle both simple and complex Map structures
@@ -34,33 +35,30 @@ The `DotPathQL` is the core component of this project that allows you to extract
 </dependency>
 ```
 
-### Basic Usage
+### Filter Usage
 
 ```java
 DotPathQL filterUtil = new DotPathQL();
 
 // Filter specific properties from an object
-List<String> filterPaths = List.of(
+Map<String, Object> result = filterUtil.filter(userObject, List.of(
     "username",
     "address.street",
     "address.city"
-);
-
-Map<String, Object> result = filterUtil.filter(userObject, filterPaths);
+));
 ```
 
-### Example Output
+### Exclude Usage
 
-Given an input object with complex nested structure, the filter will return:
+```java
+DotPathQL filterUtil = new DotPathQL();
 
-```json
-{
-  "username": "john_doe",
-  "address": {
-    "street": "123 Main St",
-    "city": "Springfield"
-  }
-}
+// Exclude specific properties and return everything else
+Map<String, Object> result = filterUtil.exclude(userObject, List.of(
+    "password",
+    "ssn",
+    "address.country"
+));
 ```
 
 ## Supported Data Structures
@@ -132,6 +130,40 @@ List<String> essentialFields = List.of("id", "name", "status");
 List<Map<String, Object>> lightweightData = users.stream()
     .map(user -> filterUtil.filter(user, essentialFields))
     .collect(Collectors.toList());
+```
+
+### Data Privacy and Security
+Remove sensitive information while preserving the rest of the data structure:
+
+```java
+// Exclude sensitive fields from user profiles
+List<String> sensitiveFields = List.of(
+    "password",
+    "ssn", 
+    "creditCard.number",
+    "address.country"  // Remove specific nested fields
+);
+
+Map<String, Object> publicProfile = filterUtil.exclude(userObject, sensitiveFields);
+```
+
+### API Response Exclusion
+Create APIs where clients can specify which fields to exclude:
+
+```java
+@GetMapping("/users/{id}")
+public Map<String, Object> getUser(
+    @PathVariable Long id,
+    @RequestParam(required = false) List<String> exclude
+) {
+    User user = userService.findById(id);
+    
+    if (exclude != null && !exclude.isEmpty()) {
+        return filterUtil.exclude(user, exclude);
+    }
+    
+    return filterUtil.filter(user, Collections.emptyList()); // Return all fields
+}
 ```
 
 ### Report Generation
