@@ -55,8 +55,12 @@ public class UserDetail {
 				),
 				new String[] {"USER", "ADMIN"},
 				new Occupation[] {
-						new Occupation("Software Engineer", "Develops software applications", 90000.00, "Engineering", 5),
-						new Occupation("Project Manager", "Manages software projects", 95000.00, "Management", 7)
+						new Occupation("Software Engineer", "Develops software applications", 90000.00, "Engineering", 5,
+								new Address("123 Tech St", "Tech City", "CA", "90001", "USA")
+						),
+						new Occupation("Project Manager", "Manages software projects", 95000.00, "Management", 7,
+								new Address("456 Project Ave", "Project City", "CA", "90002", "USA")
+						)
 				},
 				Map.of(
 						"preferredLanguage", "English",

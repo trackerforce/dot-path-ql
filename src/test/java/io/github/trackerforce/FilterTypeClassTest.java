@@ -8,7 +8,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-class TypeClassTest {
+class FilterTypeClassTest {
 
 	DotPathQL dotPathQL = new DotPathQL();
 
@@ -16,13 +16,12 @@ class TypeClassTest {
 	void shouldReturnFilteredObjectPrivateAttributes() {
 		// Given
 		var customer = Customer.of();
-		var filterPaths = List.of(
-				"metadata.password",
-				"metadata.tags"
-		);
 
 		// When
-		var result = dotPathQL.filter(customer, filterPaths);
+		var result = dotPathQL.filter(customer, List.of(
+				"metadata.password",
+				"metadata.tags"
+		));
 
 		// Then
 		assertEquals(1, result.size());
@@ -44,10 +43,9 @@ class TypeClassTest {
 	void shouldReturnFilteredObjectListOfListAttributes() {
 		// Given
 		var customer = Customer.of();
-		var filterPaths = List.of("features.metadata.tags");
 
 		// When
-		var result = dotPathQL.filter(customer, filterPaths);
+		var result = dotPathQL.filter(customer, List.of("features.metadata.tags"));
 
 		// Then
 		assertEquals(1, result.size());

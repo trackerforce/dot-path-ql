@@ -5,6 +5,7 @@ public record Occupation(
 		String description,
 		double salary,
 		String department,
-		int yearsOfExperience
+		int yearsOfExperience,
+		Address address
 ) {
 }

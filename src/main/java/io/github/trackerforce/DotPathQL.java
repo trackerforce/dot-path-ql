@@ -1,9 +1,8 @@
 package io.github.trackerforce;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Utility class for filtering objects based on specified paths.
@@ -15,13 +14,15 @@ import java.util.*;
 @SuppressWarnings("unchecked")
 public class DotPathQL {
 
-	private final List<String> defaultFilterPaths;
+	private final PathFilter pathFilter;
+	private final PathExclude pathExclude;
 
 	/**
 	 * Constructs a DotPathQL instance with an empty list of default filter paths.
 	 */
 	public DotPathQL() {
-		this.defaultFilterPaths = new ArrayList<>();
+		pathFilter = new PathFilter();
+		pathExclude = new PathExclude();
 	}
 
 	/**
@@ -35,15 +36,22 @@ public class DotPathQL {
 	 * @return a map containing the filtered properties
 	 */
 	public <T> Map<String, Object> filter(T source, List<String> filterPaths) {
-		Map<String, Object> result = new LinkedHashMap<>();
-		List<String> expandedPaths = expandGroupedPaths(filterPaths);
-		expandedPaths.addAll(0, defaultFilterPaths);
+		return pathFilter.filter(source, filterPaths);
+	}
 
-		for (String path : expandedPaths) {
-			addPathToResult(result, source, path);
-		}
-
-		return result;
+	/**
+	 * Excludes the given paths from the source object and returns the remaining structure.
+	 * Works as the inverse of {@link #filter(Object, List)} – instead of selecting only
+	 * specific paths, it returns all properties except the excluded ones.
+	 * Supports the same grouped path syntax (e.g. "locations[home.street,work.city]").
+	 *
+	 * @param <T> the type of the source object
+	 * @param source the source object to extract from
+	 * @param excludePaths list of dot paths to exclude
+	 * @return a map containing all properties except the excluded ones
+	 */
+	public <T> Map<String, Object> exclude(T source, List<String> excludePaths) {
+		return pathExclude.exclude(source, excludePaths);
 	}
 
 	/**
@@ -100,337 +108,7 @@ public class DotPathQL {
 	 * @param paths the list of default filter paths to add
 	 */
 	public void addDefaultFilterPaths(List<String> paths) {
-		defaultFilterPaths.addAll(paths);
-	}
-
-	/**
-	 * Expands grouped paths like "parent[child1.prop,child2.prop]" into individual paths.
-	 *
-	 * @param filterPaths the list of paths that may contain grouped syntax
-	 * @return a list of expanded individual paths
-	 */
-	private List<String> expandGroupedPaths(List<String> filterPaths) {
-		List<String> expandedPaths = new ArrayList<>();
-
-		for (String path : filterPaths) {
-			if (path.contains("[") && path.contains("]")) {
-				expandedPaths.addAll(expandGroupedPath(path));
-			} else {
-				expandedPaths.add(path);
-			}
-		}
-
-		return expandedPaths;
-	}
-
-	/**
-	 * Expands a single grouped path into individual paths.
-	 * Supports nested brackets like "locations[home[street],work[city]]"
-	 *
-	 * @param groupedPath the grouped path to expand
-	 * @return a list of individual paths
-	 */
-	private List<String> expandGroupedPath(String groupedPath) {
-		List<String> expandedPaths = new ArrayList<>();
-
-		int startBracket = groupedPath.indexOf('[');
-
-		// Find the matching closing bracket by counting bracket depth
-		int endBracket = findMatchingClosingBracket(groupedPath, startBracket);
-		if (endBracket == -1) {
-			expandedPaths.add(groupedPath);
-			return expandedPaths;
-		}
-
-		String prefix = groupedPath.substring(0, startBracket);
-		String groupedContent = groupedPath.substring(startBracket + 1, endBracket);
-
-		// Parse the grouped content, handling nested brackets
-		List<String> subPaths = parseGroupedContent(groupedContent);
-
-		for (String subPath : subPaths) {
-			if (!subPath.trim().isEmpty()) {
-				expandedPaths.add(prefix + "." + subPath.trim());
-			}
-		}
-
-		return expandedPaths;
-	}
-
-	/**
-	 * Finds the matching closing bracket for the given opening bracket position.
-	 *
-	 * @param text the text to search in
-	 * @param startPos the position of the opening bracket
-	 * @return the position of the matching closing bracket, or -1 if not found
-	 */
-	private int findMatchingClosingBracket(String text, int startPos) {
-		int depth = 1;
-		for (int i = startPos + 1; i < text.length(); i++) {
-			char ch = text.charAt(i);
-			if (ch == '[') {
-				depth++;
-			} else if (ch == ']') {
-				depth--;
-				if (depth == 0) {
-					return i;
-				}
-			}
-		}
-		return -1;
-	}
-
-	/**
-	 * Parses grouped content that may contain nested brackets.
-	 * For example: "home[street,city],work[city]" -> ["home[street,city]", "work[city]"]
-	 *
-	 * @param content the grouped content to parse
-	 * @return a list of sub-paths
-	 */
-	private List<String> parseGroupedContent(String content) {
-		List<String> subPaths = new ArrayList<>();
-		int depth = 0;
-		int start = getStart(content, depth, subPaths);
-
-		// Add the last sub-path
-		String lastSubPath = content.substring(start).trim();
-		if (!lastSubPath.isEmpty()) {
-			// Recursively expand if this subPath contains brackets
-			if (lastSubPath.contains("[") && lastSubPath.contains("]")) {
-				subPaths.addAll(expandNestedSubPath(lastSubPath));
-			} else {
-				subPaths.add(lastSubPath);
-			}
-		}
-
-		return subPaths;
-	}
-
-	/**
-	 * Gets the start index for parsing comma-separated sub-paths in the content.
-	 *
-	 * @param content   the content to parse
-	 * @param depth     the current bracket depth
-	 * @param subPaths  the list to store parsed sub-paths
-	 * @return the start index for the next sub-path
-	 */
-	private int getStart(String content, int depth, List<String> subPaths) {
-		int start = 0;
-
-		for (int i = 0; i < content.length(); i++) {
-			char ch = content.charAt(i);
-
-			if (ch == '[') {
-				depth++;
-			} else if (ch == ']') {
-				depth--;
-			} else if (ch == ',' && depth == 0) {
-				// Found a comma at the top level - this is a separator
-				String subPath = content.substring(start, i).trim();
-				if (!subPath.isEmpty()) {
-					if (subPath.contains("[") && subPath.contains("]")) {
-						subPaths.addAll(expandNestedSubPath(subPath));
-					} else {
-						subPaths.add(subPath);
-					}
-				}
-				start = i + 1;
-			}
-		}
-		return start;
-	}
-
-	/**
-	 * Expands a nested sub-path like "home[street,city]" into "home.street" and "home.city"
-	 *
-	 * @param subPath the sub-path to expand
-	 * @return a list of expanded paths
-	 */
-	private List<String> expandNestedSubPath(String subPath) {
-		List<String> expandedPaths = new ArrayList<>();
-
-		int startBracket = subPath.indexOf('[');
-		int endBracket = findMatchingClosingBracket(subPath, startBracket);
-
-		if (startBracket != -1 && endBracket != -1) {
-			String prefix = subPath.substring(0, startBracket);
-			String nestedContent = subPath.substring(startBracket + 1, endBracket);
-
-			// Parse nested content that may contain its own comma-separated values
-			List<String> nestedPaths = parseCommaSeparatedPaths(nestedContent);
-			for (String nestedPath : nestedPaths) {
-				String trimmed = nestedPath.trim();
-				if (!trimmed.isEmpty()) {
-					expandedPaths.add(prefix + "." + trimmed);
-				}
-			}
-		}
-
-		return expandedPaths;
-	}
-
-	/**
-	 * Parses comma-separated paths, respecting bracket nesting.
-	 * For example: "street,city" -> ["street", "city"]
-	 * For example: "prop1,nested[sub1,sub2]" -> ["prop1", "nested[sub1,sub2]"]
-	 *
-	 * @param content the content to parse
-	 * @return a list of paths
-	 */
-	private List<String> parseCommaSeparatedPaths(String content) {
-		List<String> paths = new ArrayList<>();
-		int start = 0;
-
-		for (int i = 0; i < content.length(); i++) {
-			char ch = content.charAt(i);
-
-			if (ch == ',') {
-				// Found a comma at the top level - this is a separator
-				String path = content.substring(start, i).trim();
-				if (!path.isEmpty()) {
-					paths.add(path);
-				}
-				start = i + 1;
-			}
-		}
-
-		// Add the last path
-		String lastPath = content.substring(start).trim();
-		if (!lastPath.isEmpty()) {
-			paths.add(lastPath);
-		}
-
-		return paths;
-	}
-
-	private <T> void addPathToResult(Map<String, Object> result, T source, String path) {
-		String[] parts = path.split("\\.", 2);
-		String currentProperty = parts[0];
-		String remainingPath = parts.length > 1 ? parts[1] : null;
-
-		Object value = getPropertyValue(source, currentProperty);
-		if (value == null) {
-			return;
-		}
-
-		if (remainingPath == null) {
-			result.put(currentProperty, value);
-		} else {
-			extractFromNestedStructure(result, value, currentProperty, remainingPath);
-		}
-	}
-
-	private void extractFromNestedStructure(Map<String, Object> result, Object value, String currentProperty,
-											String remainingPath) {
-		// Nested property using Collection
-		if (value instanceof Collection<?> collection) {
-			getNestedStructure(result, collection, currentProperty, remainingPath).removeIf(Map::isEmpty);
-
-			// Nested property using Array
-		} else if (value.getClass().isArray()) {
-			Object[] array = (Object[]) value;
-			getNestedStructure(result, Arrays.asList(array), currentProperty, remainingPath).removeIf(Map::isEmpty);
-
-			// Nested property using Map
-		} else if (value instanceof Map<?, ?> map) {
-			Map<String, Object> nestedResult = (Map<String, Object>)
-					result.computeIfAbsent(currentProperty, k -> new LinkedHashMap<>());
-
-			// Split the remaining path to get the next property we're looking for
-			String[] remainingParts = remainingPath.split("\\.", 2);
-			String targetKey = remainingParts[0];
-			String nextRemainingPath = remainingParts.length > 1 ? remainingParts[1] : null;
-
-			// Only process the specific key we're looking for
-			if (map.containsKey(targetKey)) {
-				Object entryValue = map.get(targetKey);
-				if (nextRemainingPath == null) {
-					// This is the final property - set the value directly
-					nestedResult.put(targetKey, entryValue);
-				} else {
-					// Get or create a nested map for this key (don't overwrite existing)
-					Map<String, Object> keyNestedResult = (Map<String, Object>)
-							nestedResult.computeIfAbsent(targetKey, k -> new LinkedHashMap<>());
-
-					addPathToResult(keyNestedResult, entryValue, nextRemainingPath);
-				}
-			}
-
-			// Single nested object - get or create the nested map
-		} else {
-			Map<String, Object> nestedResult = (Map<String, Object>)
-					result.computeIfAbsent(currentProperty, k -> new LinkedHashMap<>());
-			addPathToResult(nestedResult, value, remainingPath);
-		}
-	}
-
-	private List<Map<String, Object>> getNestedStructure(Map<String, Object> result, Collection<?> collection,
-														 String currentProperty, String remainingPath) {
-		List<Map<String, Object>> nestedResults = (List<Map<String, Object>>)
-				result.computeIfAbsent(currentProperty, k -> new ArrayList<>());
-		result.put(currentProperty, nestedResults);
-
-		// Ensure we have enough maps in the list for all collection items
-		while (nestedResults.size() < collection.size()) {
-			nestedResults.add(new LinkedHashMap<>());
-		}
-
-		// Process each item in the collection
-		for (int index = 0; index < collection.size(); index++) {
-			Map<String, Object> nestedMap = nestedResults.get(index);
-			addPathToResult(nestedMap, ((List<?>) collection).get(index), remainingPath);
-		}
-
-		return nestedResults;
-	}
-
-	private <T> Object getPropertyValue(T source, String propertyName) {
-		try {
-			Class<?> clazz = source.getClass();
-
-			// Try record component accessor method first (most efficient for records)
-			if (clazz.isRecord()) {
-				return getRecordProperty(source, propertyName, clazz);
-			}
-
-			// Try getter method for regular classes
-			Object getterResult = tryGetterMethod(source, propertyName, clazz);
-			if (getterResult != null) {
-				return getterResult;
-			}
-
-			// Fall back to direct field access
-			return tryDirectFieldAccess(source, propertyName, clazz);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private <T> Object getRecordProperty(T source, String propertyName, Class<?> clazz) throws
-			NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-		Method method = clazz.getMethod(propertyName);
-		return method.invoke(source);
-	}
-
-	private <T> Object tryGetterMethod(T source, String propertyName, Class<?> clazz) {
-		try {
-			String getterName = "get" + Character.toUpperCase(propertyName.charAt(0)) +
-					propertyName.substring(1);
-			Method getter = clazz.getMethod(getterName);
-			return getter.invoke(source);
-		} catch (Exception e) {
-			return null;
-		}
-	}
-
-	private <T> Object tryDirectFieldAccess(T source, String propertyName, Class<?> clazz) {
-		try {
-			Field field = clazz.getDeclaredField(propertyName);
-			field.setAccessible(true);
-			return field.get(source);
-		} catch (Exception e) {
-			return null;
-		}
+		pathFilter.addDefaultFilterPaths(paths);
 	}
 
 	private boolean isInvalid(Map<String, Object> source, String property) {
