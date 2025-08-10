@@ -18,6 +18,7 @@ The `DotPathQL` is the core component of this project that allows you to extract
 - 📋 **Collection Handling**: Process Lists, Arrays, and other Collections
 - 🗺️ **Map Support**: Handle both simple and complex Map structures
 - 📝 **Record & POJO Support**: Works with Java Records and traditional classes
+- 📄 **JSON Output**: Convert results to pretty-formatted or compact JSON strings
 - 🔒 **Private Field Access**: Can access private fields when getters aren't available (filtering only)
 - 🚀 **Performance Optimized**: Efficient reflection-based property access
 
@@ -174,23 +175,88 @@ List<String> reportFields = List.of(
 );
 ```
 
+## JSON Output
+
+Convert your filtered or excluded results to JSON format using the built-in `toJson` method. This feature supports both pretty-formatted (indented) and compact (single-line) output.
+
+### Pretty JSON
+
+```java
+var dotPathQL = new DotPathQL();
+var result = dotPathQL.filter(userObject, List.of(
+    "username",
+    "address.street",
+    "address.city",
+    "orders.products.name"
+));
+
+// Pretty formatted JSON with 2-space indentation
+String prettyJson = dotPathQL.toJson(result, true);
+//or
+String prettyJson = dotPathQL.toJson(result, 4); // Custom indentation level
+```
+
+**Output:**
+```json
+{
+  "username": "john_doe",
+  "address": {
+    "street": "123 Main St",
+    "city": "Springfield"
+  },
+  "orders": [
+    {
+      "products": [
+        {
+          "name": "Laptop"
+        },
+        {
+          "name": "Mouse"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Compact JSON
+
+```java
+// Compact single-line JSON
+String compactJson = dotPathQL.toJson(result, false);
+System.out.println(compactJson);
+```
+
+**Output:**
+```json
+{"username": "john_doe", "address": {"street": "123 Main St", "city": "Springfield"}, "orders": [{"products": [{"name": "Laptop"}, {"name": "Mouse"}]}]}
+```
+
 ## Helper Utilities
 
 You can also easy access the map result using the `DotPathQL` utility methods:
 
+### Quick Access Methods
+
 ```java
 // Step 1
-var dotPathQL = new DotPathQL();
-var result = dotPathQL.filter(userObject, List.of(
+DotPathQL dotPathQL = new DotPathQL();
+Map<String, Object> result = dotPathQL.filter(userObject, List.of(
     "address",
     "friendList",
     "games"
 ));
 
 // Step 2: Accessing the result
-var address = dotPathQL.mapFrom(result, "address");
-var friendList = dotPathQL.listFrom(result, "friendList");
-var games = dotPathQL.arrayFrom(result, "games");
+Map<String, Object> address = dotPathQL.mapFrom(result, "address");
+List<Map<String, Object>> friendList = dotPathQL.listFrom(result, "friendList");
+Object[] games = dotPathQL.arrayFrom(result, "games");
+```
+
+### Map objects
+
+```java
+Map<String, Object> userMap = dotPathQL.toMap(userObject);
 ```
 
 ## Technical Requirements

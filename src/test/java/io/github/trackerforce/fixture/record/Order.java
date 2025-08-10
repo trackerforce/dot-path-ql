@@ -11,7 +11,7 @@ public record Order(
 	public static Order ofOrder123() {
 		return new Order(
 				List.of(Product.ofLaptop(), Product.ofSmartphone()),
-				new Date(),
+				new Date(1754766345000L),
 				"order123"
 		);
 	}
@@ -19,7 +19,7 @@ public record Order(
 	public static Order ofOrder456() {
 		return new Order(
 				List.of(Product.ofHeadphones()),
-				new Date(),
+				new Date(1754766345000L),
 				"order456"
 		);
 	}

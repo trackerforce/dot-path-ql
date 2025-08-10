@@ -1,12 +1,16 @@
 package io.github.trackerforce.fixture.record;
 
+import java.util.List;
+
 public record Address(
 		String street,
 		String city,
 		String state,
 		String zipCode,
 		String country,
-		int[] coordinates
+		int[] coordinates,
+		char[] code,
+		List<Integer> numbers
 ) {
 	public static Address of123() {
 		return new Address(
@@ -15,7 +19,9 @@ public record Address(
 				"IL",
 				"62701",
 				"USA",
-				new int[]{40, 90}
+				new int[]{40, 90},
+				new char[]{'A', 'B', 'C'},
+				List.of(1, 2, 3, 4, 5)
 		);
 	}
 
@@ -26,7 +32,10 @@ public record Address(
 				"IL",
 				"62701",
 				"USA",
-				new int[]{39, 89});
+				new int[]{39, 89},
+				new char[]{'X', 'Y', 'Z'},
+				List.of(6, 7, 8, 9, 10)
+		);
 	}
 
 	public static Address of789() {
@@ -36,6 +45,9 @@ public record Address(
 				"IL",
 				"62701",
 				"USA",
-				new int[]{39, 89});
+				new int[]{39, 89},
+				new char[]{'1', '2', '3'},
+				List.of(11, 12, 13, 14, 15)
+		);
 	}
 }
