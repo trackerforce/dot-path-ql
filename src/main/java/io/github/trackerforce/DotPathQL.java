@@ -14,7 +14,6 @@ import java.util.Map;
  * @author petruki
  * @since 2025-08-02
  */
-@SuppressWarnings("unchecked")
 public class DotPathQL {
 
 	private final DotPath pathFilter;
@@ -60,65 +59,6 @@ public class DotPathQL {
 	}
 
 	/**
-	 * Converts the source object to a map representation.
-	 *
-	 * @param <T> the type of the source object
-	 * @param source the source object to convert
-	 * @return a map containing all properties of the source object
-	 */
-	public <T> Map<String, Object> toMap(T source) {
-		return exclude(source, Collections.emptyList());
-	}
-
-	/**
-	 * Extracts a map from the source map based on the specified property.
-	 *
-	 * @param source   the source map
-	 * @param property the property to extract
-	 * @return the extracted map or an empty map if not found
-	 * @throws ClassCastException if the property is not a map
-	 */
-	public Map<String, Object> mapFrom(Map<String, Object> source, String property) {
-		if (isInvalid(source, property)) {
-			return Collections.emptyMap();
-		}
-
-		return (Map<String, Object>) source.get(property);
-	}
-
-	/**
-	 * Extracts a list of maps from the source map based on the specified property.
-	 *
-	 * @param source   the source map
-	 * @param property the property to extract
-	 * @return the extracted list of maps or an empty list if not found
-	 * @throws ClassCastException if the property is not a list of maps
-	 */
-	public List<Map<String, Object>> listFrom(Map<String, Object> source, String property) {
-		if (isInvalid(source, property)) {
-			return Collections.emptyList();
-		}
-
-		return (List<Map<String, Object>>) source.get(property);
-	}
-
-	/**
-	 * Extracts a list of objects from the source map based on the specified property.
-	 *
-	 * @param source   the source map
-	 * @param property the property to extract
-	 * @return the extracted list of objects or an empty list if not found
-	 * @throws ClassCastException if the property is not a list of objects
-	 */
-	public Object[] arrayFrom(Map<String, Object> source, String property) {
-		if (isInvalid(source, property)) {
-			return new Object[0];
-		}
-
-		return (Object[]) source.get(property);
-	}
-
-	/**
 	 * Adds default filter paths that will be included in every filtering operation.
 	 *
 	 * @param paths the list of default filter paths to add
@@ -134,6 +74,17 @@ public class DotPathQL {
 	 */
 	public void addDefaultExcludePaths(List<String> paths) {
 		pathExclude.addDefaultPaths(paths);
+	}
+
+	/**
+	 * Converts the source object to a map representation.
+	 *
+	 * @param <T> the type of the source object
+	 * @param source the source object to convert
+	 * @return a map containing all properties of the source object
+	 */
+	public <T> Map<String, Object> toMap(T source) {
+		return exclude(source, Collections.emptyList());
 	}
 
 	/**
@@ -159,7 +110,4 @@ public class DotPathQL {
 		return pathPrinter.toJson(sourceMap, prettier);
 	}
 
-	private boolean isInvalid(Map<String, Object> source, String property) {
-		return source == null || property == null || property.isEmpty() || !source.containsKey(property);
-	}
 }

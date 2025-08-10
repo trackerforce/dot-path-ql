@@ -36,12 +36,12 @@ class FilterTypeClassRecordTest {
 		assertEquals("john_doe", result.get("username"));
 
 		// Verify nested address structure
-		var address = dotPathQL.mapFrom(result, "address");
+		var address = DotUtils.mapFrom(result, "address");
 		assertNotNull(address);
 		assertEquals("123 Main St", address.get("street"));
 
 		// Verify nested orders structure with products
-		var orders = dotPathQL.listFrom(result, "orders");
+		var orders = DotUtils.listFrom(result, "orders");
 		assertNotNull(orders);
 		assertEquals(2, orders.size());
 
@@ -49,7 +49,7 @@ class FilterTypeClassRecordTest {
 		var firstOrder = orders.get(0);
 
 		// Verify first order with its products
-		var firstOrderProducts = dotPathQL.listFrom(firstOrder, "products");
+		var firstOrderProducts = DotUtils.listFrom(firstOrder, "products");
 		assertNotNull(firstOrderProducts, "Products list should not be null");
 		assertEquals(2, firstOrderProducts.size());
 		assertEquals("Laptop", firstOrderProducts.get(0).get("name"));
@@ -57,7 +57,7 @@ class FilterTypeClassRecordTest {
 
 		// Verify second order with its product
 		var secondOrder = orders.get(1);
-		var secondOrderProducts = dotPathQL.listFrom(secondOrder, "products");
+		var secondOrderProducts = DotUtils.listFrom(secondOrder, "products");
 		assertEquals(1, secondOrderProducts.size());
 		assertEquals("Headphones", secondOrderProducts.get(0).get("name"));
 	}
@@ -72,7 +72,7 @@ class FilterTypeClassRecordTest {
 		assertEquals(1, result.size());
 
 		// Verify occupations structure
-		var occupations = dotPathQL.listFrom(result, "occupations");
+		var occupations = DotUtils.listFrom(result, "occupations");
 		assertEquals(2, occupations.size());
 		assertEquals("Software Engineer", occupations.get(0).get("title"));
 		assertEquals("Project Manager", occupations.get(1).get("title"));
@@ -91,7 +91,7 @@ class FilterTypeClassRecordTest {
 		assertEquals(1, result.size());
 
 		// Verify additionalInfo structure
-		var additionalInfo = dotPathQL.mapFrom(result, "additionalInfo");
+		var additionalInfo = DotUtils.mapFrom(result, "additionalInfo");
 		assertNotNull(additionalInfo);
 		assertEquals("English", additionalInfo.get("preferredLanguage"));
 		assertEquals("Active", additionalInfo.get("subscriptionStatus"));
@@ -109,16 +109,16 @@ class FilterTypeClassRecordTest {
 		// Then
 		assertEquals(1, result.size());
 
-		var locations = dotPathQL.mapFrom(result, "locations");
+		var locations = DotUtils.mapFrom(result, "locations");
 		assertEquals(2, locations.size());
 
 		// Verify home address structure
-		var homeLocation = dotPathQL.mapFrom(locations, "home");
+		var homeLocation = DotUtils.mapFrom(locations, "home");
 		assertNotNull(homeLocation);
 		assertEquals("456 Elm St", homeLocation.get("street"));
 
 		// Verify work address structure
-		var workLocation = dotPathQL.mapFrom(locations, "work");
+		var workLocation = DotUtils.mapFrom(locations, "work");
 		assertNotNull(workLocation);
 		assertEquals("Springfield", workLocation.get("city"));
 	}
@@ -133,8 +133,8 @@ class FilterTypeClassRecordTest {
 		// Then
 		assertEquals(2, result.size());
 		assertEquals("john_doe", result.get("username"));
-		assertEquals(1, dotPathQL.mapFrom(result, "address").size());
-		assertEquals("Springfield", dotPathQL.mapFrom(result, "address").get("city"));
+		assertEquals(1, DotUtils.mapFrom(result, "address").size());
+		assertEquals("Springfield", DotUtils.mapFrom(result, "address").get("city"));
 	}
 
 	@ParameterizedTest(name = "{0}")
@@ -146,16 +146,16 @@ class FilterTypeClassRecordTest {
 		// Then
 		assertEquals(1, result.size());
 
-		var locations = dotPathQL.mapFrom(result, "locations");
+		var locations = DotUtils.mapFrom(result, "locations");
 		assertEquals(2, locations.size());
 
 		// Verify home address structure
-		var homeLocation = dotPathQL.mapFrom(locations, "home");
+		var homeLocation = DotUtils.mapFrom(locations, "home");
 		assertNotNull(homeLocation);
 		assertEquals("456 Elm St", homeLocation.get("street"));
 
 		// Verify work address structure
-		var workLocation = dotPathQL.mapFrom(locations, "work");
+		var workLocation = DotUtils.mapFrom(locations, "work");
 		assertNotNull(workLocation);
 		assertEquals("Springfield", workLocation.get("city"));
 	}
@@ -169,17 +169,17 @@ class FilterTypeClassRecordTest {
 		// Then
 		assertEquals(1, result.size());
 
-		var locations = dotPathQL.mapFrom(result, "locations");
+		var locations = DotUtils.mapFrom(result, "locations");
 		assertEquals(2, locations.size());
 
 		// Verify home address structure
-		var homeLocation = dotPathQL.mapFrom(locations, "home");
+		var homeLocation = DotUtils.mapFrom(locations, "home");
 		assertNotNull(homeLocation);
 		assertEquals("456 Elm St", homeLocation.get("street"));
 		assertEquals("Springfield", homeLocation.get("city"));
 
 		// Verify work address structure
-		var workLocation = dotPathQL.mapFrom(locations, "work");
+		var workLocation = DotUtils.mapFrom(locations, "work");
 		assertNotNull(workLocation);
 		assertEquals("Springfield", workLocation.get("city"));
 	}
