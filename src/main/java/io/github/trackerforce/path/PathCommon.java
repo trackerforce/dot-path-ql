@@ -1,4 +1,6 @@
-package io.github.trackerforce;
+package io.github.trackerforce.path;
+
+import io.github.trackerforce.path.api.DotPath;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,12 +15,34 @@ import java.util.Map;
  * Provides methods to expand grouped paths, retrieve property values,
  * and manage default filter paths.
  */
-abstract class PathCommon {
+abstract class PathCommon implements DotPath {
 
 	/**
 	 * Default paths that can be used across different implementations.
 	 */
 	protected final List<String> defaultPaths;
+
+	/**
+	 * Constructor to initialize the PathCommon with an empty list of default paths.
+	 * This allows subclasses to add their own default paths as needed.
+	 */
+	protected PathCommon() {
+		this.defaultPaths = new ArrayList<>();
+	}
+
+	@Override
+	public <T> Map<String, Object> run(T source, List<String> paths) {
+		if (source == null) {
+			return Collections.emptyMap();
+		}
+
+		return execute(source, expandGroupedPaths(paths));
+	}
+
+	@Override
+	public void addDefaultPaths(List<String> paths) {
+		defaultPaths.addAll(paths);
+	}
 
 	/**
 	 * Executes the path processing logic for the given source object.
@@ -29,40 +53,6 @@ abstract class PathCommon {
 	 * @return a map containing the processed properties
 	 */
 	abstract <T> Map<String, Object> execute(T source, List<String> filterPaths);
-
-	/**
-	 * Runs the path processing logic for the given source object with the specified paths.
-	 *
-	 * @param <T>          the type of the source object
-	 * @param source       the source object to process
-	 * @param excludePaths the list of paths to exclude
-	 * @return a map containing the processed properties
-	 */
-	<T> Map<String, Object> run(T source, List<String> excludePaths) {
-		if (source == null) {
-			return Collections.emptyMap();
-		}
-
-		return execute(source, expandGroupedPaths(excludePaths));
-	}
-
-	/**
-	 * Constructor to initialize the PathCommon with an empty list of default paths.
-	 * This allows subclasses to add their own default paths as needed.
-	 */
-	protected PathCommon() {
-		this.defaultPaths = new ArrayList<>();
-	}
-
-	/**
-	 * Adds default paths to the list of paths that can be used
-	 * when processing objects.
-	 *
-	 * @param paths the list of paths to add as default paths
-	 */
-	public void addDefaultPaths(List<String> paths) {
-		defaultPaths.addAll(paths);
-	}
 
 	/**
 	 * Expands grouped paths like "parent[child1.prop,child2.prop]" into individual paths.

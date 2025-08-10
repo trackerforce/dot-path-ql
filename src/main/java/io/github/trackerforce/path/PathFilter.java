@@ -1,4 +1,4 @@
-package io.github.trackerforce;
+package io.github.trackerforce.path;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package io.github.trackerforce;
+package io.github.trackerforce.path;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,6 +7,7 @@ import java.util.Map;
 class ExclusionNode {
 
 	private boolean excludeSelf; // If true, this exact path is excluded
+
 	private final Map<String, ExclusionNode> children;
 
 	public ExclusionNode() {

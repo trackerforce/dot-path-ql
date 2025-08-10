@@ -1,11 +1,13 @@
-package io.github.trackerforce;
+package io.github.trackerforce.path;
+
+import io.github.trackerforce.path.api.DotPrinter;
 
 import java.lang.reflect.Array;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-class PathPrinter {
+class PathPrinter implements DotPrinter {
 
     private String indent;
 
@@ -15,11 +17,13 @@ class PathPrinter {
 		setIndentSize(indentSize);
 	}
 
+	@Override
     public String toJson(Object obj, boolean prettier) {
 		this.prettier = prettier;
         return toJsonInternal(obj, 0);
     }
 
+	@Override
 	public void setIndentSize(int indentSize) {
 		indent = " ".repeat(indentSize);
 	}
