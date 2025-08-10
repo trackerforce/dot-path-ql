@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Utility class for filtering objects based on specified paths.
- * It supports nested properties, collections, and arrays.
+ * API for filtering and excluding properties from objects using dot paths.
  *
  * @author petruki
  * @since 2025-08-02
@@ -16,6 +15,7 @@ public class DotPathQL {
 
 	private final PathCommon pathFilter;
 	private final PathCommon pathExclude;
+	private final PathPrinter pathPrinter;
 
 	/**
 	 * Constructs a DotPathQL instance with an empty list of default filter paths.
@@ -23,6 +23,7 @@ public class DotPathQL {
 	public DotPathQL() {
 		pathFilter = new PathFilter();
 		pathExclude = new PathExclude();
+		pathPrinter = new PathPrinter(2);
 	}
 
 	/**
@@ -52,6 +53,17 @@ public class DotPathQL {
 	 */
 	public <T> Map<String, Object> exclude(T source, List<String> excludePaths) {
 		return pathExclude.run(source, excludePaths);
+	}
+
+	/**
+	 * Converts the source object to a map representation.
+	 *
+	 * @param <T> the type of the source object
+	 * @param source the source object to convert
+	 * @return a map containing all properties of the source object
+	 */
+	public <T> Map<String, Object> toMap(T source) {
+		return exclude(source, Collections.emptyList());
 	}
 
 	/**
@@ -118,6 +130,29 @@ public class DotPathQL {
 	 */
 	public void addDefaultExcludePaths(List<String> paths) {
 		pathExclude.addDefaultPaths(paths);
+	}
+
+	/**
+	 * Converts the given sourceMap to a JSON string representation with optional formatting.
+	 *
+	 * @param sourceMap the source map to convert to JSON
+	 * @param indentSize the number of spaces to use for indentation
+	 * @return a JSON string representation of the object
+	 */
+	public String toJson(Map<String, Object> sourceMap, int indentSize) {
+		pathPrinter.setIndentSize(indentSize);
+		return toJson(sourceMap, true);
+	}
+
+	/**
+	 * Converts the given sourceMap to a JSON string representation.
+	 *
+	 * @param sourceMap the source map to convert to JSON
+	 * @param prettier if true, formats with proper indentation; if false, compact single-line format
+	 * @return a JSON string representation of the object
+	 */
+	public String toJson(Map<String, Object> sourceMap, boolean prettier) {
+		return pathPrinter.toJson(sourceMap, prettier);
 	}
 
 	private boolean isInvalid(Map<String, Object> source, String property) {

@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
@@ -23,7 +25,15 @@ public class Occupation {
 				90000.00,
 				"Engineering",
 				5,
-				new Address("123 Tech St", "Tech City", "CA", "90001", "USA", new int[]{37, 122})
+				new Address(
+						"123 Tech St",
+						"Tech City",
+						"CA",
+						"90001",
+						"USA",
+						new int[]{37, 122},
+						new char[0],
+						List.of())
 		);
 	}
 
@@ -34,7 +44,15 @@ public class Occupation {
 				95000.00,
 				"Management",
 				7,
-				new Address("456 Project Ave", "Project City", "CA", "90002", "USA", new int[]{34, 118})
+				new Address(
+						"456 Project Ave",
+						"Project City",
+						"CA",
+						"90002",
+						"USA",
+						new int[]{34, 118},
+						new char[0],
+						List.of())
 		);
 	}
 }
