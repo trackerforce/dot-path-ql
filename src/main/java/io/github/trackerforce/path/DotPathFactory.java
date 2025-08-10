@@ -1,5 +1,6 @@
 package io.github.trackerforce.path;
 
+import io.github.trackerforce.path.api.DotParse;
 import io.github.trackerforce.path.api.DotPath;
 import io.github.trackerforce.path.api.DotPrinter;
 
@@ -36,5 +37,14 @@ public class DotPathFactory {
 	 */
 	public static DotPrinter buildPrinter(int indentSize) {
 		return new PathPrinter(indentSize);
+	}
+
+	/**
+	 * Builds and returns a new instance of PathParser.
+	 *
+	 * @return a new PathParser instance
+	 */
+	public static DotParse buildParser() {
+		return new PathParser();
 	}
 }

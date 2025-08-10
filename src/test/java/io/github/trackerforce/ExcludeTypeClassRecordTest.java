@@ -28,7 +28,7 @@ class ExcludeTypeClassRecordTest {
         var result = dotPathQL.exclude(userDetail, List.of("orders.orderId"));
 
 		// Then
-		var orders = dotPathQL.listFrom(result, "orders");
+		var orders = DotUtils.listFrom(result, "orders");
         assertNotNull(orders);
         assertEquals(2, orders.size());
         assertFalse(orders.get(0).containsKey("orderId"));
@@ -51,7 +51,7 @@ class ExcludeTypeClassRecordTest {
 		));
 
 		// Then
-		var address = dotPathQL.mapFrom(result, "address");
+		var address = DotUtils.mapFrom(result, "address");
 		assertNotNull(address);
 		assertFalse(address.containsKey("street"));
 		assertFalse(address.containsKey("city"));
@@ -70,18 +70,18 @@ class ExcludeTypeClassRecordTest {
         ));
 
 		// Then
-        var address = dotPathQL.mapFrom(result, "address");
+        var address = DotUtils.mapFrom(result, "address");
         assertNotNull(address);
         assertFalse(address.containsKey("street"));
         assertTrue(address.containsKey("city"));
 
         // orders products have no description
-        var orders = dotPathQL.listFrom(result, "orders");
-        var firstOrderProducts = dotPathQL.listFrom(orders.get(0), "products");
+        var orders = DotUtils.listFrom(result, "orders");
+        var firstOrderProducts = DotUtils.listFrom(orders.get(0), "products");
         assertFalse(firstOrderProducts.get(0).containsKey("description"));
 
         // additionalInfo without lastLogin
-        var addInfo = dotPathQL.mapFrom(result, "additionalInfo");
+        var addInfo = DotUtils.mapFrom(result, "additionalInfo");
         assertNotNull(addInfo);
         assertFalse(addInfo.containsKey("lastLogin"));
         assertEquals("English", addInfo.get("preferredLanguage"));
@@ -94,15 +94,15 @@ class ExcludeTypeClassRecordTest {
         var result = dotPathQL.exclude(userDetail, List.of("locations[home.street,work.city]"));
 
 		// Then
-        var locations = dotPathQL.mapFrom(result, "locations");
+        var locations = DotUtils.mapFrom(result, "locations");
         assertNotNull(locations);
 
-        var home = dotPathQL.mapFrom(locations, "home");
+        var home = DotUtils.mapFrom(locations, "home");
         assertNotNull(home);
         assertFalse(home.containsKey("street"));
         assertTrue(home.containsKey("city"));
 
-        var work = dotPathQL.mapFrom(locations, "work");
+        var work = DotUtils.mapFrom(locations, "work");
         assertFalse(work.containsKey("city"));
     }
 
@@ -115,7 +115,7 @@ class ExcludeTypeClassRecordTest {
 
 		// Then
 		assertFalse(result.containsKey("username"));
-		var address = dotPathQL.mapFrom(result, "address");
+		var address = DotUtils.mapFrom(result, "address");
 		assertNotNull(address);
 		assertFalse(address.containsKey("city"));
 		assertTrue(address.containsKey("street"));

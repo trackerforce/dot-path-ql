@@ -5,12 +5,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-class UtilsTest {
+class DotUtilsTest {
 
 	DotPathQL dotPathQL = new DotPathQL();
 
@@ -26,7 +26,7 @@ class UtilsTest {
 	void shouldReturnSelectedArrayProperties(String implementation, Object userDetail) {
 		// When
 		var result = dotPathQL.toMap(userDetail);
-		var roles = dotPathQL.arrayFrom(result, "roles");
+		var roles = DotUtils.arrayFrom(result, "roles");
 
 		// Then
 		assertNotNull(roles);
@@ -40,7 +40,7 @@ class UtilsTest {
 	void shouldReturnSelectedListProperties(String implementation, Object userDetail) {
 		// When
 		var result = dotPathQL.toMap(userDetail);
-		var occupations = dotPathQL.listFrom(result, "occupations");
+		var occupations = DotUtils.listFrom(result, "occupations");
 
 		// Then
 		assertNotNull(occupations);
@@ -52,7 +52,7 @@ class UtilsTest {
 	void shouldReturnSelectedMapProperties(String implementation, Object userDetail) {
 		// When
 		var result = dotPathQL.toMap(userDetail);
-		var locations = dotPathQL.mapFrom(result, "locations");
+		var locations = DotUtils.mapFrom(result, "locations");
 
 		// Then
 		assertNotNull(locations);
@@ -62,7 +62,7 @@ class UtilsTest {
 	@Test
 	void shouldReturnEmptyArrayWhenPropertyNotExists() {
 		// When
-		var unknown = dotPathQL.arrayFrom(null, "unknown");
+		var unknown = DotUtils.arrayFrom(null, "unknown");
 
 		// Then
 		assertNotNull(unknown);
@@ -72,7 +72,7 @@ class UtilsTest {
 	@Test
 	void shouldReturnEmptyListWhenPropertyNotExists() {
 		// When
-		var unknown = dotPathQL.listFrom(null, "unknown");
+		var unknown = DotUtils.listFrom(null, "unknown");
 
 		// Then
 		assertNotNull(unknown);
@@ -82,10 +82,53 @@ class UtilsTest {
 	@Test
 	void shouldReturnEmptyMapWhenPropertyNotExists() {
 		// When
-		var unknown = dotPathQL.mapFrom(null, "unknown");
+		var unknown = DotUtils.mapFrom(null, "unknown");
 
 		// Then
 		assertNotNull(unknown);
 		assertEquals(0, unknown.size());
+	}
+
+	static Stream<Arguments> parsePathsArgs() {
+		return Stream.of(
+				Arguments.of("locations.home,locations.work", List.of(
+						"locations.home",
+						"locations.work"
+				)),
+				Arguments.of("locations,address.street,orders[product.name]", List.of(
+						"locations",
+						"address.street",
+						"orders[product.name]"
+				)),
+				Arguments.of("locations[home.street,work.city]", List.of(
+					"locations[home.street,work.city]"
+				)),
+				Arguments.of("locations[home[street,city]],locations[work[city]]", List.of(
+						"locations[home[street,city]]",
+						"locations[work[city]]"
+				))
+		);
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("parsePathsArgs")
+	void shouldParsePathsIntoList(String input, List<String> expected) {
+		// When
+		var paths = DotUtils.parsePaths(input);
+
+		// Then
+		assertNotNull(paths);
+		assertEquals(expected.size(), paths.size());
+		assertArrayEquals(expected.toArray(), paths.toArray());
+	}
+
+	@Test
+	void shouldReturnEmptyListWhenParseInvalidPath() {
+		// When
+		var paths = DotUtils.parsePaths(null);
+
+		// Then
+		assertNotNull(paths);
+		assertTrue(paths.isEmpty());
 	}
 }

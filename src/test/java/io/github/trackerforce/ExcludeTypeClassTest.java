@@ -20,10 +20,10 @@ class ExcludeTypeClassTest {
 		var result = dotPathQL.exclude(customer, List.of("metadata.tags"));
 
 		// Then
-		var metadata = dotPathQL.mapFrom(result, "metadata");
+		var metadata = DotUtils.mapFrom(result, "metadata");
 		assertEquals(0, metadata.size()); // No fields should remain after excluding tags and private password
 
-		var features = dotPathQL.listFrom(result, "features");
+		var features = DotUtils.listFrom(result, "features");
 		assertEquals(2, features.size());
 		assertTrue(features.get(0).containsKey("isEnabled")); // checking boolean field
 	}

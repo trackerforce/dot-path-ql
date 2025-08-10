@@ -233,9 +233,23 @@ System.out.println(compactJson);
 {"username": "john_doe", "address": {"street": "123 Main St", "city": "Springfield"}, "orders": [{"products": [{"name": "Laptop"}, {"name": "Mouse"}]}]}
 ```
 
+## Map objects
+Convert any object to a Map representation using the `toMap` method. This is useful for scenarios where you need a visual representation of the entire object structure.
+
+```java
+Map<String, Object> userMap = dotPathQL.toMap(userObject);
+```
+
 ## Helper Utilities
 
-You can also easy access the map result using the `DotPathQL` utility methods:
+You can also easy access the map result using the `DotUtils` utility methods:
+
+### Path parsing
+
+```java
+List<String> paths = DotUtils.parsePaths("locations[home.street,work.city],contact[email,phone.mobile],age");
+// Result: ["locations[home.street,work.city]", "contact[email,phone.mobile]", "age"]
+```
 
 ### Quick Access Methods
 
@@ -249,15 +263,9 @@ Map<String, Object> result = dotPathQL.filter(userObject, List.of(
 ));
 
 // Step 2: Accessing the result
-Map<String, Object> address = dotPathQL.mapFrom(result, "address");
-List<Map<String, Object>> friendList = dotPathQL.listFrom(result, "friendList");
-Object[] games = dotPathQL.arrayFrom(result, "games");
-```
-
-### Map objects
-
-```java
-Map<String, Object> userMap = dotPathQL.toMap(userObject);
+Map<String, Object> address = DotUtils.mapFrom(result, "address");
+List<Map<String, Object>> friendList = DotUtils.listFrom(result, "friendList");
+Object[] games = DotUtils.arrayFrom(result, "games");
 ```
 
 ## Technical Requirements
