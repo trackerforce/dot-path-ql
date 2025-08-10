@@ -1,4 +1,5 @@
 [![Master CI](https://github.com/trackerforce/dot-path-ql/actions/workflows/master.yml/badge.svg)](https://github.com/trackerforce/dot-path-ql/actions/workflows/master.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trackerforce_dot-path-ql&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=trackerforce_dot-path-ql)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.trackerforce/dot-path-ql.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.trackerforce/dot-path-ql)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
