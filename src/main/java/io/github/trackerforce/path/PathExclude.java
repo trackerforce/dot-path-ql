@@ -1,4 +1,4 @@
-package io.github.trackerforce;
+package io.github.trackerforce.path;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

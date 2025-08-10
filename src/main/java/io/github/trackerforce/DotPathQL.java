@@ -1,5 +1,9 @@
 package io.github.trackerforce;
 
+import io.github.trackerforce.path.*;
+import io.github.trackerforce.path.api.DotPath;
+import io.github.trackerforce.path.api.DotPrinter;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +17,17 @@ import java.util.Map;
 @SuppressWarnings("unchecked")
 public class DotPathQL {
 
-	private final PathCommon pathFilter;
-	private final PathCommon pathExclude;
-	private final PathPrinter pathPrinter;
+	private final DotPath pathFilter;
+	private final DotPath pathExclude;
+	private final DotPrinter pathPrinter;
 
 	/**
 	 * Constructs a DotPathQL instance with an empty list of default filter paths.
 	 */
 	public DotPathQL() {
-		pathFilter = new PathFilter();
-		pathExclude = new PathExclude();
-		pathPrinter = new PathPrinter(2);
+		pathFilter = DotPathFactory.buildFilter();
+		pathExclude = DotPathFactory.buildExclude();
+		pathPrinter = DotPathFactory.buildPrinter(2);
 	}
 
 	/**
