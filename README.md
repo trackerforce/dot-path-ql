@@ -109,13 +109,15 @@ The utility uses a multi-layered approach to access object properties:
 Perfect for creating flexible APIs where clients can specify which fields they need:
 
 ```java
+import io.github.trackerforce.DotUtils;
+
 @GetMapping("/users/{id}")
 public Map<String, Object> getUser(
-    @PathVariable Long id,
-    @RequestParam List<String> fields
+		@PathVariable Long id,
+		@RequestParam String paths
 ) {
-    User user = userService.findById(id);
-    return filterUtil.filter(user, fields);
+	User user = userService.findById(id);
+	return doPathQl.filter(user, DotUtils.parsePaths(paths));
 }
 ```
 
@@ -126,7 +128,7 @@ Reduce payload size by extracting only required fields:
 // Instead of sending full objects, send only what's needed
 List<String> essentialFields = List.of("id", "name", "status");
 List<Map<String, Object>> lightweightData = users.stream()
-    .map(user -> filterUtil.filter(user, essentialFields))
+    .map(user -> doPathQl.filter(user, essentialFields))
     .collect(Collectors.toList());
 ```
 
@@ -142,7 +144,7 @@ List<String> sensitiveFields = List.of(
     "address.country"  // Remove specific nested fields
 );
 
-Map<String, Object> publicProfile = filterUtil.exclude(userObject, sensitiveFields);
+Map<String, Object> publicProfile = doPathQl.exclude(userObject, sensitiveFields);
 ```
 
 ### API Response Exclusion
@@ -151,16 +153,16 @@ Create APIs where clients can specify which fields to exclude:
 ```java
 @GetMapping("/users/{id}")
 public Map<String, Object> getUser(
-    @PathVariable Long id,
-    @RequestParam(required = false) List<String> exclude
+		@PathVariable Long id,
+		@RequestParam(required = false) String exclude
 ) {
-    User user = userService.findById(id);
-    
-    if (exclude != null && !exclude.isEmpty()) {
-        return filterUtil.exclude(user, exclude);
-    }
-    
-    return filterUtil.filter(user, Collections.emptyList()); // Return all fields
+	User user = userService.findById(id);
+
+	if (exclude != null && !exclude.isEmpty()) {
+		return doPathQl.exclude(user, DotUtils.parsePaths(exclude));
+	}
+
+	return doPathQl.toMap(user); // Return all fields
 }
 ```
 
