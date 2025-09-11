@@ -1,6 +1,6 @@
 [![Master CI](https://github.com/trackerforce/dot-path-ql/actions/workflows/master.yml/badge.svg)](https://github.com/trackerforce/dot-path-ql/actions/workflows/master.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=trackerforce_dot-path-ql&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=trackerforce_dot-path-ql)
-[![Maven Central](https://img.shields.io/maven-central/v/io.github.trackerforce/dot-path-ql.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/io.github.trackerforce/dot-path-ql)
+[![Maven Central](https://img.shields.io/maven-central/v/ca.trackerforce/dot-path-ql.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/ca.trackerforce/dot-path-ql)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # dotPathQL
@@ -31,7 +31,7 @@ The `DotPathQL` is the core component of this project that allows you to extract
 
 ```xml
 <dependency>
-  <groupId>io.github.trackerforce</groupId>
+  <groupId>ca.trackerforce</groupId>
   <artifactId>dot-path-ql</artifactId>
   <version>${dot-path-ql.version}</version>
 </dependency>
@@ -109,7 +109,7 @@ The utility uses a multi-layered approach to access object properties:
 Perfect for creating flexible APIs where clients can specify which fields they need:
 
 ```java
-import io.github.trackerforce.DotUtils;
+import ca.trackerforce.DotUtils;
 
 @GetMapping("/users/{id}")
 public Map<String, Object> getUser(
