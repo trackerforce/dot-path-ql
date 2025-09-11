@@ -1,6 +1,5 @@
 package ca.trackerforce;
 
-import ca.trackerforce.fixture.record.UserDetail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,7 +16,7 @@ class FilterTypeClassRecordTest {
 
 	static Stream<Arguments> userDetailProvider() {
 		return Stream.of(
-				Arguments.of("Record type", UserDetail.of()),
+				Arguments.of("Record type", ca.trackerforce.fixture.record.UserDetail.of()),
 				Arguments.of("Class type", ca.trackerforce.fixture.clazz.UserDetail.of())
 		);
 	}
@@ -187,6 +186,24 @@ class FilterTypeClassRecordTest {
 
 	@ParameterizedTest(name = "{0}")
 	@MethodSource("userDetailProvider")
+	void shouldReturnFilteredMapAttributes(String implementation, Object userDetail) {
+		// When
+		var source = dotPathQL.toMap(userDetail); // Convert to Map for testing
+		var result = dotPathQL.filter(source, List.of(
+				"username",
+				"address.street",
+				"orders.products.name"
+		));
+
+		// Then
+		assertEquals(3, result.size());
+		assertEquals("john_doe", result.get("username"));
+		assertEquals(1, DotUtils.mapFrom(result, "address").size());
+		assertEquals(2, DotUtils.listFrom(result, "orders").size());
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
 	void shouldReturnEmptyResultInvalidGroupedPaths(String implementation, Object userDetail) {
 		// When
 		var result = dotPathQL.filter(userDetail, List.of("locations]home[")); // Invalid grouped path
@@ -204,4 +221,5 @@ class FilterTypeClassRecordTest {
 		assertNotNull(result);
 		assertTrue(result.isEmpty());
 	}
+
 }

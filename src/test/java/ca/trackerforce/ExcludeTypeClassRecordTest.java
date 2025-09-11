@@ -1,6 +1,5 @@
 package ca.trackerforce;
 
-import ca.trackerforce.fixture.record.UserDetail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,7 +16,7 @@ class ExcludeTypeClassRecordTest {
 
     static Stream<Arguments> userDetailProvider() {
         return Stream.of(
-                Arguments.of("Record type", UserDetail.of()),
+                Arguments.of("Record type", ca.trackerforce.fixture.record.UserDetail.of()),
                 Arguments.of("Class type", ca.trackerforce.fixture.clazz.UserDetail.of())
         );
     }
