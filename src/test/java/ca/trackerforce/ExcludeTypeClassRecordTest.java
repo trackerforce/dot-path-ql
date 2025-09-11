@@ -121,6 +121,36 @@ class ExcludeTypeClassRecordTest {
 		assertTrue(address.containsKey("street"));
 	}
 
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldExcludeSimpleNestedFieldFromMapSource(String implementation, Object userDetail) {
+		// When
+		var source = dotPathQL.toMap(userDetail); // Convert to Map for testing
+		var result = dotPathQL.exclude(source, List.of("orders.orderId"));
+
+		// Then
+		var orders = DotUtils.listFrom(result, "orders");
+		assertNotNull(orders);
+		assertEquals(2, orders.size());
+		assertFalse(orders.get(0).containsKey("orderId"));
+		assertFalse(orders.get(1).containsKey("orderId"));
+		assertTrue(orders.get(0).containsKey("products"));
+	}
+
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldNotExcludeWhenPathNotExists(String implementation, Object userDetail) {
+		// When
+		var source = dotPathQL.toMap(userDetail); // Convert to Map for testing
+		var result = dotPathQL.exclude(source, List.of(
+				"invalidProperty" // Non-existent property
+		));
+
+		// Then
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+	}
+
 	@Test
 	void shouldReturnEmptyMapWhenSourceIsNull() {
 		// When

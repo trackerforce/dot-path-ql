@@ -222,4 +222,18 @@ class FilterTypeClassRecordTest {
 		assertTrue(result.isEmpty());
 	}
 
+	@ParameterizedTest(name = "{0}")
+	@MethodSource("userDetailProvider")
+	void shouldReturnEmptyMapWhenPathNotExists(String implementation, Object userDetail) {
+		// When
+		var source = dotPathQL.toMap(userDetail); // Convert to Map for testing
+		var result = dotPathQL.filter(source, List.of(
+				"invalidProperty" // Non-existent property
+		));
+
+		// Then
+		assertNotNull(result);
+		assertTrue(result.isEmpty());
+	}
+
 }
