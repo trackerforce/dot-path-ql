@@ -1,7 +1,6 @@
 package ca.trackerforce;
 
 import ca.trackerforce.path.DotPathFactory;
-import ca.trackerforce.path.*;
 import ca.trackerforce.path.api.DotPath;
 import ca.trackerforce.path.api.DotPrinter;
 
