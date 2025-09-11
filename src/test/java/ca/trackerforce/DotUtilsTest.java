@@ -1,6 +1,5 @@
 package ca.trackerforce;
 
-import ca.trackerforce.fixture.record.UserDetail;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -17,7 +16,7 @@ class DotUtilsTest {
 
 	static Stream<Arguments> userDetailProvider() {
 		return Stream.of(
-				Arguments.of("Record type", UserDetail.of()),
+				Arguments.of("Record type", ca.trackerforce.fixture.record.UserDetail.of()),
 				Arguments.of("Class type", ca.trackerforce.fixture.clazz.UserDetail.of())
 		);
 	}
@@ -27,13 +26,19 @@ class DotUtilsTest {
 	void shouldReturnSelectedArrayProperties(String implementation, Object userDetail) {
 		// When
 		var result = dotPathQL.toMap(userDetail);
-		var roles = DotUtils.arrayFrom(result, "roles");
+		var roles = DotUtils.arrayFrom(result, "roles"); // simple array
+		var locationsHomeCoordinates = DotUtils.arrayFrom(result, "locations.home.coordinates"); // nested array
 
 		// Then
 		assertNotNull(roles);
 		assertEquals(2, roles.length);
 		assertEquals("USER", roles[0]);
 		assertEquals("ADMIN", roles[1]);
+
+		assertNotNull(locationsHomeCoordinates);
+		assertEquals(2, locationsHomeCoordinates.length);
+		assertEquals(39, locationsHomeCoordinates[0]);
+		assertEquals(89, locationsHomeCoordinates[1]);
 	}
 
 	@ParameterizedTest(name = "{0}")
@@ -42,10 +47,16 @@ class DotUtilsTest {
 		// When
 		var result = dotPathQL.toMap(userDetail);
 		var occupations = DotUtils.listFrom(result, "occupations");
+		var locationsWorkNumbers = DotUtils.listFrom(result, "locations.work.numbers", Integer.class);
 
 		// Then
 		assertNotNull(occupations);
 		assertEquals(2, occupations.size());
+
+		assertNotNull(locationsWorkNumbers);
+		assertEquals(5, locationsWorkNumbers.size());
+		assertEquals(11, locationsWorkNumbers.get(0));
+		assertEquals(15, locationsWorkNumbers.get(4));
 	}
 
 	@ParameterizedTest(name = "{0}")

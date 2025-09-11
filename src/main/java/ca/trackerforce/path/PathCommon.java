@@ -100,6 +100,11 @@ abstract class PathCommon implements DotPath {
 				return getterResult;
 			}
 
+			// Try mapping method for Map instances
+			if (source instanceof Map<?, ?> map && map.containsKey(propertyName)) {
+				return map.get(propertyName);
+			}
+
 			// Fall back to direct field access
 			return tryDirectFieldAccess(source, propertyName, clazz);
 		} catch (Exception e) {
