@@ -10,6 +10,12 @@ class PathExclude extends PathCommon {
 		INSTANCE
 	}
 
+	private boolean obfuscateMode = false;
+
+	public void setObfuscateMode(boolean obfuscateMode) {
+		this.obfuscateMode = obfuscateMode;
+	}
+
 	public <T> Map<String, Object> execute(T source, List<String> excludePaths) {
 		Map<String, Object> result = new LinkedHashMap<>();
 		excludePaths.addAll(0, defaultPaths);
@@ -48,9 +54,16 @@ class PathExclude extends PathCommon {
 			return;
 		}
 
+		excludeFromNode(target, source, currentPath, node);
+	}
+
+	private void excludeFromNode(Map<String, Object> target, Object source, String currentPath, ExclusionNode node) {
 		for (String prop : getPropertyNames(source.getClass())) {
 			ExclusionNode childNode = node == null ? null : node.getChildren().get(prop);
 			if (childNode != null && childNode.isExcludeSelf() && childNode.getChildren().isEmpty()) {
+				if (obfuscateMode) {
+					target.put(prop, "****");
+				}
 				continue;
 			}
 
@@ -69,6 +82,9 @@ class PathExclude extends PathCommon {
 			ExclusionNode childNode = node == null ? null : node.getChildren().get(key);
 
 			if (childNode != null && childNode.isExcludeSelf() && childNode.getChildren().isEmpty()) {
+				if (obfuscateMode) {
+					target.put(key, "****");
+				}
 				continue;
 			}
 

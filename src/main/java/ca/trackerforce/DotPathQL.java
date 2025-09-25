@@ -18,6 +18,7 @@ public class DotPathQL {
 
 	private final DotPath pathFilter;
 	private final DotPath pathExclude;
+	private final DotPath pathObfuscate;
 	private final DotPrinter pathPrinter;
 
 	/**
@@ -26,6 +27,7 @@ public class DotPathQL {
 	public DotPathQL() {
 		pathFilter = DotPathFactory.buildFilter();
 		pathExclude = DotPathFactory.buildExclude();
+		pathObfuscate = DotPathFactory.buildObfuscate();
 		pathPrinter = DotPathFactory.buildPrinter(2);
 	}
 
@@ -59,6 +61,20 @@ public class DotPathQL {
 	}
 
 	/**
+	 * Obfuscates the given source object based on the specified paths.
+	 * The paths can include nested properties, collections, and arrays.
+	 * Also supports grouped paths syntax like "parent[child1.prop,child2.prop]"
+	 *
+	 * @param <T>         the type of the source object
+	 * @param source      the source object to obfuscate
+	 * @param obfuscatePaths the list of paths to obfuscate
+	 * @return a map containing the obfuscated properties
+	 */
+	public <T> Map<String, Object> obfuscate(T source, List<String> obfuscatePaths) {
+		return pathObfuscate.run(source, obfuscatePaths);
+	}
+
+	/**
 	 * Adds default filter paths that will be included in every filtering operation.
 	 *
 	 * @param paths the list of default filter paths to add
@@ -74,6 +90,15 @@ public class DotPathQL {
 	 */
 	public void addDefaultExcludePaths(List<String> paths) {
 		pathExclude.addDefaultPaths(paths);
+	}
+
+	/**
+	 * Adds default obfuscate paths that will be included in every obfuscation operation.
+	 *
+	 * @param paths the list of default obfuscate paths to add
+	 */
+	public void addDefaultObfuscatePaths(List<String> paths) {
+		pathObfuscate.addDefaultPaths(paths);
 	}
 
 	/**

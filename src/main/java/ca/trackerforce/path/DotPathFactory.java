@@ -30,6 +30,17 @@ public class DotPathFactory {
 	}
 
 	/**
+	 * Builds and returns a new instance of PathExclude configured for obfuscation mode.
+	 *
+	 * @return a new PathExclude instance with obfuscation enabled
+	 */
+	public static PathExclude buildObfuscate() {
+		PathExclude pathExclude = new PathExclude();
+		pathExclude.setObfuscateMode(true);
+		return pathExclude;
+	}
+
+	/**
 	 * Builds and returns a new instance of PathPrinter with the specified indentation size.
 	 *
 	 * @param indentSize the number of spaces to use for indentation

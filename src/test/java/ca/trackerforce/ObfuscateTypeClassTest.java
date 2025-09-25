@@ -5,24 +5,25 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ExcludeTypeClassTest {
+class ObfuscateTypeClassTest {
 
 	DotPathQL dotPathQL = new DotPathQL();
 
 	@Test
-	void shouldExcludeAndNotReturnPrivateAttributes() {
+	void shouldObfuscateAndNotReturnPrivateAttributes() {
 		// Given
 		var customer = Customer.of();
 
 		// When
-		var result = dotPathQL.exclude(customer, List.of("email"));
+		var result = dotPathQL.obfuscate(customer, List.of("email"));
 
 		// Then
 		var metadata = DotUtils.mapFrom(result, "metadata"); // private field
 		assertEquals(0, metadata.size());
 
-		assertFalse(result.containsKey("email"));
+		var email = result.get("email");
+		assertEquals("****", email);
 	}
 }
