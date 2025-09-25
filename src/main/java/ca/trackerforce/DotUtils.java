@@ -66,6 +66,8 @@ public class DotUtils {
 	 *
 	 * @param source   the source map
 	 * @param property the property to extract or a dot-notated path for nested properties
+	 * @param clazz    the class type of the list elements
+	 * @param <T> the type of the list elements
 	 * @return the extracted list of maps or an empty list if not found
 	 * @throws ClassCastException if the property is not a list of maps
 	 */
@@ -132,5 +134,3 @@ public class DotUtils {
 		return result;
 	}
 }
-
-

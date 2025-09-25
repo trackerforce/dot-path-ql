@@ -6,7 +6,7 @@
 
     <groupId>ca.trackerforce</groupId>
     <artifactId>dot-path-ql</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1</version>
 
     <name>dot-path-ql</name>
     <description>dotPathQL allows object attribute filtering</description>

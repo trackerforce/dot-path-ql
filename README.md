@@ -15,6 +15,7 @@ The `DotPathQL` is the core component of this project that allows you to extract
 
 - 🎯 **Selective Property Extraction**: Extract only the properties you need
 - 🚫 **Property Exclusion**: Exclude specific properties and return everything else
+- 🔐 **Property Obfuscation**: Replace sensitive property values with "****" while preserving structure
 - 🔍 **Deep Nested Support**: Navigate through multiple levels of object nesting
 - 📋 **Collection Handling**: Process Lists, Arrays, and other Collections
 - 🗺️ **Map Support**: Handle both simple and complex Map structures
@@ -25,16 +26,20 @@ The `DotPathQL` is the core component of this project that allows you to extract
 
 ## Quick Start
 
-## Install
-- Using the source code `mvn clean install`
-- Adding as a dependency - Maven
+### Library coordinates
 
+Maven
 ```xml
 <dependency>
   <groupId>ca.trackerforce</groupId>
   <artifactId>dot-path-ql</artifactId>
   <version>${dot-path-ql.version}</version>
 </dependency>
+```
+
+Gradle
+```groovy
+implementation 'ca.trackerforce:dot-path-ql:${dot-path-ql.version}'
 ```
 
 ### Filter Usage
@@ -56,6 +61,17 @@ Map<String, Object> result = new DotPathQL().exclude(userObject, List.of(
     "password",
     "ssn",
     "address.country"
+));
+```
+
+### Obfuscate Usage
+
+```java
+// Obfuscate specific properties by replacing their values with "****"
+Map<String, Object> result = new DotPathQL().obfuscate(userObject, List.of(
+    "password",
+    "ssn",
+    "creditCard.number"
 ));
 ```
 
@@ -176,6 +192,34 @@ List<String> reportFields = List.of(
     "orders.date",
     "orders.products.category"
 );
+```
+
+### Data Obfuscation for Security
+Mask sensitive information while maintaining data structure for logging, debugging, or sharing with third parties:
+
+```java
+// Obfuscate sensitive fields while keeping the structure intact
+List<String> sensitiveFields = List.of(
+    "password",
+    "ssn", 
+    "creditCard.number",
+    "bankAccount.accountNumber",
+    "personalInfo.phoneNumber"
+);
+
+Map<String, Object> obfuscatedData = doPathQl.obfuscate(userObject, sensitiveFields);
+
+// Result preserves structure but replaces sensitive values with "****"
+// {
+//   "username": "john_doe",
+//   "password": "****",
+//   "ssn": "****",
+//   "creditCard": {
+//     "number": "****",
+//     "expiryDate": "12/25"
+//   },
+//   "email": "john@example.com"
+// }
 ```
 
 ## JSON Output
