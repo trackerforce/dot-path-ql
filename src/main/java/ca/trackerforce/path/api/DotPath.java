@@ -25,4 +25,11 @@ public interface DotPath {
 	 * @param paths the list of paths to add as default paths
 	 */
 	void addDefaultPaths(List<String> paths);
+
+	/**
+	 * Checks if there are any default paths set.
+	 *
+	 * @return true if there are default paths, false otherwise
+	 */
+	boolean hasDefaultPaths();
 }

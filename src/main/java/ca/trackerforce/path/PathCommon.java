@@ -44,6 +44,11 @@ abstract class PathCommon implements DotPath {
 		defaultPaths.addAll(paths);
 	}
 
+	@Override
+	public boolean hasDefaultPaths() {
+		return !defaultPaths.isEmpty();
+	}
+
 	/**
 	 * Executes the path processing logic for the given source object.
 	 *
