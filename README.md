@@ -75,6 +75,35 @@ Map<String, Object> result = new DotPathQL().obfuscate(userObject, List.of(
 ));
 ```
 
+### Pipeline Usage
+
+The pipeline feature allows you to chain multiple operations using a fluent API. Supports combining `exclude` and `obfuscate` operations:
+
+```java
+DotPathQL dotPathQL = new DotPathQL();
+
+// Chain exclude and obfuscate operations in a single pipeline
+Map<String, Object> result = dotPathQL.pipeline(userObject)
+    .exclude(List.of("additionalInfo.lastLogin"))
+    .obfuscate(List.of("address.zipCode", "phoneNumber"))
+    .execute();
+
+// Using default paths for exclude and obfuscate
+dotPathQL.addDefaultExcludePaths(List.of("password"));
+dotPathQL.addDefaultObfuscatePaths(List.of("ssn", "creditCard.number"));
+
+Map<String, Object> result = dotPathQL.pipeline(userObject)
+    .exclude() // Uses default exclude paths
+    .obfuscate() // Uses default obfuscate paths
+    .execute();
+```
+
+#### Benefits of Pipeline API
+- **Fluent Interface**: More readable and intuitive method chaining
+- **Single Execution**: Apply multiple transformations in one operation
+- **Performance**: Avoids multiple object traversals
+- **Consistency**: Predictable processing order for combined operations
+
 ## Supported Data Structures
 
 - Simple Properties (primitive and object types)

@@ -135,4 +135,15 @@ public class DotPathQL {
 		return pathPrinter.toJson(sourceMap, prettier);
 	}
 
+	/**
+	 * Creates a pipeline for the given source object that allows chaining multiple operations.
+	 *
+	 * @param <T> the type of the source object
+	 * @param source the source object to process
+	 * @return a Pipeline instance for method chaining
+	 */
+	public <T> Pipeline<T> pipeline(T source) {
+		return new Pipeline<>(source, pathExclude, pathObfuscate);
+	}
+
 }
