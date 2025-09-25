@@ -54,6 +54,10 @@ class PathExclude extends PathCommon {
 			return;
 		}
 
+		excludeFromNode(target, source, currentPath, node);
+	}
+
+	private void excludeFromNode(Map<String, Object> target, Object source, String currentPath, ExclusionNode node) {
 		for (String prop : getPropertyNames(source.getClass())) {
 			ExclusionNode childNode = node == null ? null : node.getChildren().get(prop);
 			if (childNode != null && childNode.isExcludeSelf() && childNode.getChildren().isEmpty()) {
