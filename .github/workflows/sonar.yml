@@ -16,7 +16,7 @@ jobs:
     steps:
       - name: Get PR details
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const pr = await github.rest.pulls.get({
@@ -28,7 +28,7 @@ jobs:
             core.setOutput('base_ref', pr.data.base.ref);
             core.setOutput('head_sha', pr.data.head.sha);
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: ${{ steps.pr.outputs.head_sha }}
           fetch-depth: 0
@@ -43,10 +43,11 @@ jobs:
       - name: Build/Test & SonarCloud Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          PR_ID: ${{ inputs.pr_id }}
         if: env.SONAR_TOKEN != ''
         run: |
           mvn -B clean verify -Pcoverage,sonar \
-            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-            -Dsonar.pullrequest.key=${{ inputs.pr_id }} \
+            -Dsonar.token=$SONAR_TOKEN \
+            -Dsonar.pullrequest.key=$PR_ID \
             -Dsonar.pullrequest.branch=${{ steps.pr.outputs.head_ref }} \
             -Dsonar.pullrequest.base=${{ steps.pr.outputs.base_ref }}
